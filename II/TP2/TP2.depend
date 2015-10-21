@@ -1,0 +1,30 @@
+# depslib dependency file v1.0
+1445365717 source:d:\documentos\aeds\ii\tp2\messagelist.c
+	"MessageList.h"
+
+1445369764 d:\documentos\aeds\ii\tp2\messagelist.h
+
+1445366223 source:d:\documentos\aeds\ii\tp2\index.c
+	<stdio.h>
+	<stdlib.h>
+	"MessageList.h"
+	"Talk.h"
+	"ReadData.h"
+
+1445370159 d:\documentos\aeds\ii\tp2\talk.h
+	"Message.h"
+
+1445365840 d:\documentos\aeds\ii\tp2\readdata.c
+	<stdio.h>
+
+1445370139 d:\documentos\aeds\ii\tp2\readdata.h
+
+1445368373 source:d:\documentos\aeds\ii\tp2\readdata.c
+	<stdio.h>
+	"Talk.h"
+
+1445365725 source:d:\documentos\aeds\ii\tp2\talk.c
+	"Talk.h"
+
+1445369922 d:\documentos\aeds\ii\tp2\message.h
+

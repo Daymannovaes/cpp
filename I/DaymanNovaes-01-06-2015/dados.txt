@@ -1,0 +1,6 @@
+2, Maria da Silva,8.5,4.8
+13,Joao de Almeida,7.5,6.1
+15,Jose de Almeida,8.8,9.3
+21,Maria Joao,7.3,7.320,joao lucas,2,4
+20,joao lucas,2,2
+11,dayman,100,100

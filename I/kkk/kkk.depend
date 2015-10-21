@@ -1,0 +1,15 @@
+# depslib dependency file v1.0
+1435891374 source:d:\documentos\aeds\kkk\untitled1.c
+	<stdio.h>
+	<stdlib.h>
+	"Untitled2.h"
+
+1435891527 d:\documentos\aeds\kkk\untitled2.h
+
+1435893493 source:d:\documentos\aeds\kkk\arvoreavl2.c
+	<stdio.h>
+	<stdlib.h>
+	"TADArvoreAVL.h"
+
+1435894032 d:\documentos\aeds\kkk\tadarvoreavl.h
+

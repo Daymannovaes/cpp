@@ -1,0 +1,13 @@
+# depslib dependency file v1.0
+1443285051 source:d:\documentos\aeds\tp1\index.c
+	<stdio.h>
+	<stdlib.h>
+	"matrix.h"
+
+1443285070 d:\documentos\aeds\tp1\matrix.h
+	<stdio.h>
+
+1443280891 source:d:\documentos\aeds\tp1\matrix.c
+	<stdlib.h>
+	"matrix.h"
+

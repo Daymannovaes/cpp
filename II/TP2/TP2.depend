@@ -4,11 +4,12 @@
 
 1445369764 d:\documentos\aeds\ii\tp2\messagelist.h
 
-1445366223 source:d:\documentos\aeds\ii\tp2\index.c
+1445541587 source:d:\documentos\aeds\ii\tp2\index.c
 	<stdio.h>
 	<stdlib.h>
-	"MessageList.h"
+	<string.h>
 	"Talk.h"
+	"Batch.h"
 	"ReadData.h"
 
 1445370159 d:\documentos\aeds\ii\tp2\talk.h
@@ -17,14 +18,25 @@
 1445365840 d:\documentos\aeds\ii\tp2\readdata.c
 	<stdio.h>
 
-1445370139 d:\documentos\aeds\ii\tp2\readdata.h
+1445371424 d:\documentos\aeds\ii\tp2\readdata.h
 
-1445368373 source:d:\documentos\aeds\ii\tp2\readdata.c
+1445371422 source:d:\documentos\aeds\ii\tp2\readdata.c
 	<stdio.h>
 	"Talk.h"
 
 1445365725 source:d:\documentos\aeds\ii\tp2\talk.c
 	"Talk.h"
 
-1445369922 d:\documentos\aeds\ii\tp2\message.h
+1445542372 d:\documentos\aeds\ii\tp2\message.h
+
+1445543718 source:d:\documentos\aeds\ii\tp2\batch.c
+	<string.h>
+	"Batch.h"
+
+1445543243 d:\documentos\aeds\ii\tp2\batch.h
+	<stdio.h>
+	"Message.h"
+
+1445544223 source:d:\documentos\aeds\ii\tp2\message.c
+	"Message.h"
 

@@ -26,11 +26,13 @@ void insertInEndOfBatch(Message message, TalkId talkId, MessageBatchList *list) 
 int strIsBatchInit(char *str) {
     return strstr(str, "Lote ") != NULL;
 }
-void initBatch(char *str, FILE *file) {
+Batch *readBatch(char *str, FILE *file) {
     int id = getBatchId(str);
     Batch *batch = createBatch(id);
 
     readMessages(batch, file);
+
+    return batch;
 }
 Batch *createBatch(BatchId id) {
     Batch *batch = malloc(sizeof(Batch));

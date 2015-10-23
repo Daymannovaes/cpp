@@ -33,7 +33,7 @@ void insertInEndOfBatch(Message message, TalkId talkId, MessageBatchList *list);
 // ---- BATCH METHODS
 int strIsBatchInit(char *str);
 int strIsBatchEnd(char *str);
-void initBatch(char *str, FILE *file);
+Batch *readBatch(char *str, FILE *file);
 Batch *createBatch(BatchId id);
 getBatchId(char *str);
 

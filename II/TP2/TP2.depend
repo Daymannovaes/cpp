@@ -12,7 +12,7 @@
 	"Batch.h"
 	"ReadData.h"
 
-1445370159 d:\documentos\aeds\ii\tp2\talk.h
+1445607833 d:\documentos\aeds\ii\tp2\talk.h
 	"Message.h"
 
 1445365840 d:\documentos\aeds\ii\tp2\readdata.c
@@ -29,14 +29,14 @@
 
 1445542372 d:\documentos\aeds\ii\tp2\message.h
 
-1445543718 source:d:\documentos\aeds\ii\tp2\batch.c
+1445606986 source:d:\documentos\aeds\ii\tp2\batch.c
 	<string.h>
 	"Batch.h"
 
-1445543243 d:\documentos\aeds\ii\tp2\batch.h
+1445607007 d:\documentos\aeds\ii\tp2\batch.h
 	<stdio.h>
 	"Message.h"
 
-1445544223 source:d:\documentos\aeds\ii\tp2\message.c
+1445544259 source:d:\documentos\aeds\ii\tp2\message.c
 	"Message.h"
 

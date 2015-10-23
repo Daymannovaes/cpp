@@ -13,9 +13,9 @@ typedef struct {
     TalkPointer first, last;
 } MessageTalkList;
 
-typedef int Id;
+typedef int TalkId;
 typedef struct {
-     Id id;
+     TalkId id;
      MessageTalkList messageTalkList;
      int messagesSent; //0
 } Talk;

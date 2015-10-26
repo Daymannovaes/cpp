@@ -4,7 +4,7 @@
 
 1445369764 d:\documentos\aeds\ii\tp2\messagelist.h
 
-1445541587 source:d:\documentos\aeds\ii\tp2\index.c
+1445902544 source:d:\documentos\aeds\ii\tp2\index.c
 	<stdio.h>
 	<stdlib.h>
 	<string.h>
@@ -12,7 +12,7 @@
 	"Batch.h"
 	"ReadData.h"
 
-1445607833 d:\documentos\aeds\ii\tp2\talk.h
+1445902244 d:\documentos\aeds\ii\tp2\talk.h
 	"Message.h"
 
 1445365840 d:\documentos\aeds\ii\tp2\readdata.c
@@ -24,16 +24,17 @@
 	<stdio.h>
 	"Talk.h"
 
-1445365725 source:d:\documentos\aeds\ii\tp2\talk.c
+1445904067 source:d:\documentos\aeds\ii\tp2\talk.c
+	<stdio.h>
 	"Talk.h"
 
-1445542372 d:\documentos\aeds\ii\tp2\message.h
+1445900689 d:\documentos\aeds\ii\tp2\message.h
 
-1445606986 source:d:\documentos\aeds\ii\tp2\batch.c
+1445900944 source:d:\documentos\aeds\ii\tp2\batch.c
 	<string.h>
 	"Batch.h"
 
-1445607007 d:\documentos\aeds\ii\tp2\batch.h
+1445900965 d:\documentos\aeds\ii\tp2\batch.h
 	<stdio.h>
 	"Message.h"
 

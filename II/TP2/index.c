@@ -12,9 +12,13 @@ typedef struct {
     int count; //number of talks
     int maxBatchesWithoutMessage;
 } THandler;
-THandler *initTalks();
+THandler *initTalks(int maxBatchesWithoutMessage);
 void pushTalk(Talk talk);
 void removeTalk(int talkId);
+int hasTalk(int talkId);
+int talkIndex(int talkId);
+
+void createTalkAndInsertMessage(Message message, int talkId);
 
 
 FILE *defineFile(/*char *fileName*/);
@@ -29,21 +33,21 @@ void printCounters(Batch *batch);
 
 THandler Handler;
 int main() {
-    int maxBatchesWithoutMessage;
-
-    Handler = *initTalks();
     FILE *file = defineFile();
+    int maxBatchesWithoutMessage = defineMaxBatchesWithoutMessage(file);
 
-    maxBatchesWithoutMessage = defineMaxBatchesWithoutMessage(file);
+    Handler = *initTalks(maxBatchesWithoutMessage);
+
     readAllBatches(file);
 }
 
-THandler *initTalks() {
+THandler *initTalks(int maxBatchesWithoutMessage) {
     THandler *handler;
     handler = malloc(sizeof(THandler));
 
     handler->talk = malloc(sizeof(Talk));
     handler->count = 0;
+    handler->maxBatchesWithoutMessage = maxBatchesWithoutMessage;
 
     return handler;
 }
@@ -55,16 +59,32 @@ void pushTalkInHandler(Talk talk) {
     Handler.talk[Handler.count-1] = talk;
 }
 void removeTalkInHandler(int talkId) {
+    int i, j, c;
+    c = Handler.count;
+
+    i = talkIndex(talkId);
+    if(i != -1) {
+        for(j=i; j<c-1; j++) { //shift everyone
+            Handler.talk[j] = Handler.talk[j+1];
+        }
+        Handler.count--;
+        Handler.talk = realloc(Handler.talk, Handler.count * sizeof(Talk));
+    }
+}
+int hasTalk(int talkId) {
+    return talkIndex(talkId) != -1;
+}
+int talkIndex(int talkId) {
     int i, c;
     c = Handler.count;
 
     for(i=0; i<c; i++) {
         if(Handler.talk[i].id == talkId) {
-            printf("remove");
+            return i;
         }
     }
+    return -1;
 }
-
 
 FILE *defineFile(/*char *fileName*/) {
     return stdin;
@@ -98,10 +118,36 @@ void handleBatch(Batch *batch) {
 
 void printTalks(Batch *batch) {
     printf("Listas:\n");
+
+    int talkI;
+    BatchPointer pointer = batch->messageBatchList.first->next;
+    while(pointer != NULL) {
+        printf("%d;%d;%s\n", pointer->talkId, pointer->message.key, pointer->message.text);
+
+        talkI= talkIndex(pointer->talkId);
+        if(talkI != -1) {
+            printf("Inserindo em id: %d\n", talkI);
+            insertMessage(pointer->message, &Handler.talk[talkI]); //talk.c
+        }
+        else {
+            printf("Criando novo: %d\n", pointer->talkId);
+            createTalkAndInsertMessage(pointer->message, pointer->talkId);
+        }
+        pointer = pointer->next;
+    }
 }
+
+
 void sendAndPrint(Batch *batch) {
     printf("Envios:\n");
 }
 void printCounters(Batch *batch) {
     printf("Contadores:\n");
+}
+
+void createTalkAndInsertMessage(Message message, int talkId) {
+    Talk talk = *createTalk(talkId); //talk.c
+
+    pushTalkInHandler(talk);
+    insertMessage(message, &Handler.talk[Handler.count-1]); //talk.c
 }

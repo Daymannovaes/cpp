@@ -2,16 +2,13 @@
 #include "Batch.h"
 
 // ---- LIST METHODS
-MessageBatchList *createList() {
+MessageBatchList *createMessageBatchList() {
     MessageBatchList *list = malloc(sizeof(MessageBatchList));
     list->first = malloc(sizeof(MessageBatchCell));
     list->last = list->first;
     list->first->next = NULL;
 
     return list;
-}
-void isEmpty(MessageBatchList list) {
-    return list.first == list.last;
 }
 void insertInEndOfBatch(Message message, TalkId talkId, MessageBatchList *list) {
     list->last->next = malloc(sizeof(MessageBatchCell));
@@ -38,7 +35,7 @@ Batch *createBatch(BatchId id) {
     Batch *batch = malloc(sizeof(Batch));
 
     batch->id = id;
-    batch->messageBatchList = *createList();
+    batch->messageBatchList = *createMessageBatchList();
 
     return batch;
 }

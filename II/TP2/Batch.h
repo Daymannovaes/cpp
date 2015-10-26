@@ -26,8 +26,7 @@ typedef struct {
 
 // ---- LIST METHODS
 Batch *createBatch(BatchId id);
-MessageBatchList *createList();
-void isEmpty(MessageBatchList list);
+MessageBatchList *createMessageBatchList();
 void insertInEndOfBatch(Message message, TalkId talkId, MessageBatchList *list);
 
 // ---- BATCH METHODS

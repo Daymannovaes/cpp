@@ -4,7 +4,7 @@
 #include "Message.h"
 
 typedef struct MessageTalkCell *TalkPointer;
-typedef struct {
+typedef struct MessageTalkCell {
      Message message;
      TalkPointer next;
 } MessageTalkCell;
@@ -19,5 +19,11 @@ typedef struct {
      MessageTalkList messageTalkList;
      int messagesSent; //0
 } Talk;
+
+void insertMessage(Message message, Talk *talk);
+MessageTalkList *createMessageTalkList();
+Talk *createTalk(int talkId);
+int messageIsBetween(Message message, TalkPointer pointer, TalkPointer next);
+void insertAfterPointer(Message message, MessageTalkList *list, TalkPointer pointer);
 
 #endif

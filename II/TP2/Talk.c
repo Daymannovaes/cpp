@@ -29,16 +29,18 @@ void insertMessage(Message message, Talk *talk) {
     while(pointer != NULL) {
         next = pointer->next;
 
+        if(message.key < pointer->message.key) {
+            insertAfterPointer(message, &talk->messageTalkList, talk->messageTalkList.first);
+            return;
+        }
+
         if(messageIsBetween(message, pointer, next)) {
-            printf("Inserindo mensagem %d entre %d e %d\n", message.key, pointer->message.key, next->message.key);
             insertAfterPointer(message, &talk->messageTalkList, pointer);
             return;
         }
 
         pointer = pointer->next;
     }
-
-    printf("Inserindo (%d) no final: %s |||\n", message.key, message.text);
     insertAfterPointer(message, &talk->messageTalkList, talk->messageTalkList.last);
 }
 

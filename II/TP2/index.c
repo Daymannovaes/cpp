@@ -27,6 +27,7 @@ char STOP_STR[2] = "-1";
 int stopReading(char *str, FILE *file);
 void handleBatch(Batch *batch);
 
+void batchToTalks(Batch *batch);
 void printTalks(Batch *batch);
 void sendAndPrint(Batch *batch);
 void printCounters(Batch *batch);
@@ -111,29 +112,45 @@ int stopReading(char *str, FILE *file) {
 void handleBatch(Batch *batch) {
     printf("Lote %d\n", batch->id);
 
+    batchToTalks(batch);
     printTalks(batch);
     sendAndPrint(batch);
     printCounters(batch);
 }
-
-void printTalks(Batch *batch) {
-    printf("Listas:\n");
-
+void batchToTalks(Batch *batch) {
     int talkI;
     BatchPointer pointer = batch->messageBatchList.first->next;
     while(pointer != NULL) {
-        printf("%d;%d;%s\n", pointer->talkId, pointer->message.key, pointer->message.text);
-
         talkI= talkIndex(pointer->talkId);
         if(talkI != -1) {
-            printf("Inserindo em id: %d\n", talkI);
             insertMessage(pointer->message, &Handler.talk[talkI]); //talk.c
         }
         else {
-            printf("Criando novo: %d\n", pointer->talkId);
             createTalkAndInsertMessage(pointer->message, pointer->talkId);
         }
         pointer = pointer->next;
+    }
+}
+void printTalks(Batch *batch) {
+    printf("Listas:\n");
+
+    int i, c;
+    TalkPointer pointer;
+    c = Handler.count;
+
+    for(i=0; i<c; i++) {
+        printf("Par_%d:[", i);
+
+        pointer = Handler.talk[i].messageTalkList.first->next;
+        while(pointer != NULL) {
+            printf("(%d,%s)", pointer->message.key, pointer->message.text);
+
+            pointer = pointer->next;
+            if(pointer != NULL)
+                printf(", ");
+        }
+
+        printf("]\n");
     }
 }
 

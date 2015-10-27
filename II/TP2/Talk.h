@@ -26,4 +26,6 @@ Talk *createTalk(int talkId);
 int messageIsBetween(Message message, TalkPointer pointer, TalkPointer next);
 void insertAfterPointer(Message message, MessageTalkList *list, TalkPointer pointer);
 
+Message *removeMessage(Talk *talk);
+
 #endif

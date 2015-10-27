@@ -18,6 +18,8 @@ void removeTalk(int talkId);
 int hasTalk(int talkId);
 int talkIndex(int talkId);
 
+Talk *getPriorityTalk();
+
 void createTalkAndInsertMessage(Message message, int talkId);
 
 
@@ -28,9 +30,9 @@ int stopReading(char *str, FILE *file);
 void handleBatch(Batch *batch);
 
 void batchToTalks(Batch *batch);
-void printTalks(Batch *batch);
-void sendAndPrint(Batch *batch);
-void printCounters(Batch *batch);
+void printTalks();
+void sendAndPrint();
+void printCounters();
 
 THandler Handler;
 int main() {
@@ -88,6 +90,7 @@ int talkIndex(int talkId) {
 }
 
 FILE *defineFile(/*char *fileName*/) {
+    return fopen("input.txt", "r");
     return stdin;
 }
 
@@ -99,7 +102,6 @@ void readAllBatches(FILE *file) {
         str = readLineFrom(file);
         if(strIsBatchInit(str)) {
             batch = readBatch(str, file); //Batch.c
-
             handleBatch(batch);
         }
     } while(!stopReading(str, file));
@@ -113,9 +115,9 @@ void handleBatch(Batch *batch) {
     printf("Lote %d\n", batch->id);
 
     batchToTalks(batch);
-    printTalks(batch);
-    sendAndPrint(batch);
-    printCounters(batch);
+    printTalks();
+    sendAndPrint();
+    printCounters();
 }
 void batchToTalks(Batch *batch) {
     int talkI;
@@ -131,7 +133,7 @@ void batchToTalks(Batch *batch) {
         pointer = pointer->next;
     }
 }
-void printTalks(Batch *batch) {
+void printTalks() {
     printf("Listas:\n");
 
     int i, c;
@@ -155,11 +157,31 @@ void printTalks(Batch *batch) {
 }
 
 
-void sendAndPrint(Batch *batch) {
+void sendAndPrint() {
     printf("Envios:\n");
+
+    Talk *talk = getPriorityTalk();
+    Message *message = removeMessage(talk);
+
+    while(talk != NULL && message != NULL) {
+        printf("%d;%d;%s\n", talk->id, message->key, message->text);
+
+        free(message);
+        talk = getPriorityTalk();
+        if(talk != NULL)
+            message = removeMessage(talk);
+    }
+
 }
-void printCounters(Batch *batch) {
+void printCounters() {
     printf("Contadores:\n");
+
+    int i, c;
+    c = Handler.count;
+
+    for(i=0; i<c; i++) {
+        printf("Par_%d:%d\n", i, Handler.talk[i].messagesSent);
+    }
 }
 
 void createTalkAndInsertMessage(Message message, int talkId) {
@@ -167,4 +189,35 @@ void createTalkAndInsertMessage(Message message, int talkId) {
 
     pushTalkInHandler(talk);
     insertMessage(message, &Handler.talk[Handler.count-1]); //talk.c
+}
+
+Talk *getPriorityTalk() {
+    int i, c;
+    c = Handler.count;
+    if(!c)
+        return NULL;
+
+    int smallerCounter = Handler.talk[0].messagesSent;
+    int betterId = Handler.talk[0].id;
+    int index = 0;
+
+    for(i=1; i<c; i++) {
+        if(Handler.talk[i].messagesSent == smallerCounter) {
+            if(Handler.talk[i].id < betterId) {
+                if(Handler.talk[i].messageTalkList.first != NULL && Handler.talk[i].messageTalkList.first->next != NULL && Handler.talk[i].messageTalkList.first->next->message.key == (Handler.talk[i].messagesSent + 1)) {
+                    betterId = Handler.talk[i].id;
+                    index = i;
+                }
+            }
+        }
+        if(Handler.talk[i].messagesSent < smallerCounter) {
+            if(Handler.talk[i].messageTalkList.first != NULL && Handler.talk[i].messageTalkList.first->next != NULL && Handler.talk[i].messageTalkList.first->next->message.key == (Handler.talk[i].messagesSent + 1)) {
+                smallerCounter = Handler.talk[i].messagesSent;
+                betterId = Handler.talk[i].id;
+                index = i;
+            }
+        }
+    }
+
+    return &Handler.talk[index];
 }

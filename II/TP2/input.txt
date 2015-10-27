@@ -1,0 +1,12 @@
+10
+Lote 1
+3;2;Estou fazendo agora
+0;1;Olá, tudo bem com voce?
+1;2;Não
+1;1;Você vem jantar hoje?
+0;2;Tudo sim e você?
+1;3;Vou ter que trabalhar até mais tarde
+2;4;se voce lembrar
+3;1;Conseguiu fazer o TP?
+3;3;Esta muito fácil
+Fim

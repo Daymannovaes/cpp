@@ -60,3 +60,16 @@ void insertAfterPointer(Message message, MessageTalkList *list, TalkPointer poin
 
      pointer->next = aux;
 }
+
+Message *removeMessage(Talk *talk) {
+    if(talk->messageTalkList.first == NULL || talk->messageTalkList.first->next == NULL)
+        return NULL;
+    if(talk->messageTalkList.first->next->message.key != (talk->messagesSent + 1)) {
+        return NULL;
+    }
+
+    Message message = talk->messageTalkList.first->next->message;
+    talk->messageTalkList.first = talk->messageTalkList.first->next;
+    talk->messagesSent++;
+    return &message;
+}

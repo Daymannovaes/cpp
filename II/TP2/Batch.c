@@ -17,6 +17,7 @@ void insertInEndOfBatch(Message message, TalkId talkId, MessageBatchList *list) 
     list->last->talkId = talkId;
     list->last->message = message;
     list->last->next = NULL;
+
 }
 
 // ---- BATCH METHODS
@@ -28,7 +29,6 @@ Batch *readBatch(char *str, FILE *file) {
     Batch *batch = createBatch(id);
 
     readMessages(batch, file);
-
     return batch;
 }
 Batch *createBatch(BatchId id) {
@@ -52,6 +52,7 @@ void readMessages(Batch *batch, FILE *file) {
 
     str = readLineFrom(file);
     while(!strIsBatchEnd(str)) {
+
         talkId = atoi(strtok(str, delimiter));
         messageKey = atoi(strtok(NULL, delimiter));
         text = strtok(NULL, "\n");

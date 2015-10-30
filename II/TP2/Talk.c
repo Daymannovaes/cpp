@@ -16,6 +16,7 @@ Talk *createTalk(int talkId) {
 
     talk->id = talkId;
     talk->messagesSent = 0;
+    talk->lastBatchIdWithMessage = -1;
     talk->messageTalkList = *createMessageTalkList();
 
     return talk;

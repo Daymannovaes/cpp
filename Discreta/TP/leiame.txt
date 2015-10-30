@@ -1,0 +1,1 @@
+O programa foi implementada e executado no ambiente Windows 8.1.

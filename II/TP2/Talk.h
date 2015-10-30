@@ -18,6 +18,7 @@ typedef struct {
      TalkId id;
      MessageTalkList messageTalkList;
      int messagesSent; //0
+     int lastBatchIdWithMessage;
 } Talk;
 
 void insertMessage(Message message, Talk *talk);

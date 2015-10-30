@@ -5,7 +5,7 @@ Message *createMessage(MessageKey key, char *text) {
 
     message->key = key;
 
-    message->text = malloc(strlen(text) * sizeof(char));
+    message->text = malloc(strlen(text) + 1 * sizeof(char));
     strcpy(message->text, text);
 
     return message;

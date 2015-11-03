@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "Talk.h"
 
 MessageTalkList *createMessageTalkList() {
@@ -25,7 +26,7 @@ Talk *createTalk(int talkId, int batchId) {
 
 void insertMessage(Message message, Talk *talk) {
     TalkPointer pointer = talk->messageTalkList.first->next;
-    TalkPointer next, aux;
+    TalkPointer next;
 
     while(pointer != NULL) {
         next = pointer->next;

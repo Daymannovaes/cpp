@@ -1,3 +1,6 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "Message.h"
 
 Message *createMessage(MessageKey key, char *text) {

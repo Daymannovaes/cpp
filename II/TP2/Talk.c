@@ -10,13 +10,13 @@ MessageTalkList *createMessageTalkList() {
     return list;
 }
 
-Talk *createTalk(int talkId) {
+Talk *createTalk(int talkId, int batchId) {
     Talk *talk;
     talk = malloc(sizeof(Talk));
 
     talk->id = talkId;
     talk->messagesSent = 0;
-    talk->lastBatchIdWithMessage = -1;
+    talk->lastBatchIdWithMessage = batchId;
     talk->messageTalkList = *createMessageTalkList();
 
     return talk;

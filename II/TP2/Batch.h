@@ -1,9 +1,6 @@
 #ifndef _BATCH_H
 #define _BATCH_H
 
-#include <stdio.h>
-#include "Message.h"
-
 typedef int TalkId;
 typedef struct MessageBatchCell *BatchPointer;
 typedef struct MessageBatchCell {
@@ -34,7 +31,7 @@ int strIsBatchInit(char *str);
 int strIsBatchEnd(char *str);
 Batch *readBatch(char *str, FILE *file);
 Batch *createBatch(BatchId id);
-getBatchId(char *str);
+int getBatchId(char *str);
 
 // ---- BOTH
 void readMessages(Batch *batch, FILE *file);

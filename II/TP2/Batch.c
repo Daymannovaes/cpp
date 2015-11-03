@@ -1,5 +1,10 @@
+
 #include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include "Message.h"
 #include "Batch.h"
+#include "ReadData.h"
 
 // ---- LIST METHODS
 MessageBatchList *createMessageBatchList() {
@@ -65,5 +70,5 @@ void readMessages(Batch *batch, FILE *file) {
     }
 }
 int strIsBatchEnd(char *str) {
-    return (strstr(str, "Fim") != NULL && strlen(str) == 3);
+    return (strstr(str, "Fim") != NULL && strlen(str) == (size_t)3);
 }

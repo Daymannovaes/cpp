@@ -1,4 +1,4 @@
-20
+9
 Lote 1
 11;2;It depends how you define life
 5;1;Who are you?
@@ -94,7 +94,6 @@ Lote 18
 6;1;I am working on a project
 Fim
 Lote 19
-0;2;I am doing well, how about you?
 8;22;Although never is often better than right now.
 10;2;It means you only live once. Where did you hear that?
 Fim

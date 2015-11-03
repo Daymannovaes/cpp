@@ -4,7 +4,7 @@
 
 1445369764 d:\documentos\aeds\ii\tp2\messagelist.h
 
-1446165523 source:d:\documentos\aeds\ii\tp2\index.c
+1446582952 source:d:\documentos\aeds\ii\tp2\index.c
 	<stdio.h>
 	<stdlib.h>
 	<string.h>
@@ -12,31 +12,34 @@
 	"Batch.h"
 	"ReadData.h"
 
-1445987148 d:\documentos\aeds\ii\tp2\talk.h
+1446582912 d:\documentos\aeds\ii\tp2\talk.h
 	"Message.h"
 
 1445365840 d:\documentos\aeds\ii\tp2\readdata.c
 	<stdio.h>
 
-1445371424 d:\documentos\aeds\ii\tp2\readdata.h
+1446583044 d:\documentos\aeds\ii\tp2\readdata.h
+	"Talk.h"
 
-1445371422 source:d:\documentos\aeds\ii\tp2\readdata.c
+1446582799 source:d:\documentos\aeds\ii\tp2\readdata.c
 	<stdio.h>
 	"Talk.h"
 
-1445990679 source:d:\documentos\aeds\ii\tp2\talk.c
+1446582899 source:d:\documentos\aeds\ii\tp2\talk.c
 	<stdio.h>
 	"Talk.h"
 
 1445900689 d:\documentos\aeds\ii\tp2\message.h
 
-1446163144 source:d:\documentos\aeds\ii\tp2\batch.c
+1446583010 source:d:\documentos\aeds\ii\tp2\batch.c
 	<string.h>
-	"Batch.h"
-
-1445900965 d:\documentos\aeds\ii\tp2\batch.h
 	<stdio.h>
+	<stdlib.h>
 	"Message.h"
+	"Batch.h"
+	"ReadData.h"
+
+1446582920 d:\documentos\aeds\ii\tp2\batch.h
 
 1446163111 source:d:\documentos\aeds\ii\tp2\message.c
 	"Message.h"

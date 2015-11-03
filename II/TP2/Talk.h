@@ -23,7 +23,7 @@ typedef struct {
 
 void insertMessage(Message message, Talk *talk);
 MessageTalkList *createMessageTalkList();
-Talk *createTalk(int talkId);
+Talk *createTalk(int talkId, int batchId);
 int messageIsBetween(Message message, TalkPointer pointer, TalkPointer next);
 void insertAfterPointer(Message message, MessageTalkList *list, TalkPointer pointer);
 

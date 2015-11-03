@@ -3,9 +3,9 @@
 
 #include "Talk.h"
 
-void readData(FILE *file, Talk *talks);
-char *readLineFrom(FILE *file);
 void removeNewLine(char *str);
+void readData(FILE *file);
+char *readLineFrom(FILE *file);
 
 // ---- parse functions
 int defineMaxBatchesWithoutMessage(FILE *file);

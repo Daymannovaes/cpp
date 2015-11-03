@@ -1,5 +1,11 @@
 #include <stdio.h>
-#include "Talk.h"
+#include <string.h>
+#include "ReadData.h"
+
+char STOP_STR[2] = "-1";
+int stopReading2(FILE *file, char *str) {
+    return feof(file) || !strcmp(str, STOP_STR);
+}
 
 void readData(FILE *file) {
     char str[1024];
@@ -9,7 +15,7 @@ void readData(FILE *file) {
         fgets(str, sizeof(str), file);
 
         removeNewLine(str);
-    } while(!stopReading(file, str));
+    } while(!stopReading2(file, str));
 }
 
 int defineMaxBatchesWithoutMessage(FILE *file) {

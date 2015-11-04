@@ -7,6 +7,7 @@
 
 #include "ReadData.h"
 
+int MAX_TALKS = 50;
 typedef struct {
     Talk *talk; //array of talks
     int count; //number of talks
@@ -51,7 +52,7 @@ THandler *initTalks(int maxBatchesWithoutMessage) {
     THandler *handler;
     handler = malloc(sizeof(THandler));
 
-    handler->talk = malloc(sizeof(Talk));
+    handler->talk = malloc(MAX_TALKS * sizeof(Talk));
     handler->count = 0;
     handler->maxBatchesWithoutMessage = maxBatchesWithoutMessage;
 
@@ -116,6 +117,7 @@ void readAllBatches(FILE *file) {
         if(strIsBatchInit(str)) {
             batch = readBatch(str, file); //Batch.c
             handleBatch(batch);
+            getche();
         }
     } while(!stopReading(str, file));
 }

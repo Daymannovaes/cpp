@@ -2,9 +2,9 @@
 #include <string.h>
 #include "ReadData.h"
 
-char STOP_STR[2] = "-1";
+char STOP_STR2[2] = "-1";
 int stopReading2(FILE *file, char *str) {
-    return feof(file) || !strcmp(str, STOP_STR);
+    return feof(file) || !strcmp(str, STOP_STR2);
 }
 
 void readData(FILE *file) {

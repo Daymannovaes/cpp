@@ -117,7 +117,6 @@ void readAllBatches(FILE *file) {
         if(strIsBatchInit(str)) {
             batch = readBatch(str, file); //Batch.c
             handleBatch(batch);
-            getche();
         }
     } while(!stopReading(str, file));
 }

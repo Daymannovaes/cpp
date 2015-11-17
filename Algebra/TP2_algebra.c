@@ -33,13 +33,34 @@ int inverse(int p, int a) {
 	if(r == 0)
         return -1; //não é inversível
 
-    int one = lines[c-1].d;
-    for(i=c-1; i>=0; i++) {
-		one = lines[c].a - lines[c].b * lines[c].c;
+    int i, A, B, C, D, auxB;
+    int minus = -1;
 
+    A = lines[c-1].a;
+    B = 1;
+    C = -lines[c-1].b;
+    D = lines[c-1].c;
+    printf("\n\n\n1 = %d*%d + %d*%d", A, B, C, D);
+
+    for(i=c-2; i>=0; i--) {
+        A = lines[i].a;
+        auxB = B;
+        B = D;
+        C = lines[i].b;
+        D = D * lines[i].c + auxB;
+
+        A *= pow(minus, c-i-1);
+        C *= pow(minus, c-i);
+
+        printf("\n1 = %d*%d + %d*%d", A, B, C, D);
 	}
+
+    if(C < 0)
+        D = -D;
+
+	printf("\n\n\tO inverso de %d em %d eh: %d\n\n", a, p, D);
 }
 
 int main() {
-    inverse(48, 34);
+    inverse(1234, 55);
 }

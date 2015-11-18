@@ -30,8 +30,10 @@ int inverse(int p, int a) {
 		c++;
 	} while(r != 1 && r != 0);
 
-	if(r == 0)
+	if(r == 0) {
+        printf("\n\n\tO numero nao eh inversivel.\n");
         return -1; //não é inversível
+	}
 
     int i, A, B, C, D, auxB;
     int minus = -1;
@@ -58,9 +60,55 @@ int inverse(int p, int a) {
     if(C < 0)
         D = -D;
 
-	printf("\n\n\tO inverso de %d em %d eh: %d\n\n", a, p, D);
+	printf("\n\n\tO inverso de %d em %d eh: %d.\n\n", a, p, D);
+}
+
+void menu() {
+    int op;
+    printf("\n");
+
+      printf("\n\t___________________________");
+    printf("\n\n\tQual opcao deseja escolher?");
+      printf("\n\t___________________________");
+    printf("\n\n\t 1. %s", "Calcular o inverso de um numero");
+    printf("\n\n\t 2. %s", "Calcular phi de um numero");
+    printf("\n\n\t 3. %s", "Gerar numeros e testar divisibilidade por primos menores que 5000");
+    printf("\n\n\t 4. %s", "Sair");
+
+    printf("\n\n\t\t > .\b");
+    scanf("%d", &op);
+
+    switch(op) {
+    case 1:
+        menuInverse();
+        break;
+    case 2:
+        break;
+    case 3:
+        break;
+    case 4:
+        exit(0);
+    }
+
+    menu();
+}
+
+void menuInverse() {
+    printf("\n");
+
+    int n1, n2;
+    printf("\tDigite o modulo: ");
+    scanf("%d", &n1);
+
+    printf("\n\tDigite o numero a ser calculado o inverso: ");
+    scanf("%d", &n2);
+
+    inverse(n1, n2);
+
+    printf("\n\tAperte qualquer tecla para retornar.");
+    getch();
 }
 
 int main() {
-    inverse(1234, 55);
+    menu();
 }

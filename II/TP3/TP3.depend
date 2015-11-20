@@ -1,0 +1,41 @@
+# depslib dependency file v1.0
+1448046951 source:d:\documentos\aeds\ii\tp3\binder.c
+	<string.h>
+	<stdio.h>
+	<stdlib.h>
+	"Point.h"
+	"Binder.h"
+
+1448048691 d:\documentos\aeds\ii\tp3\binder.h
+	"Point.h"
+
+1448046121 source:d:\documentos\aeds\ii\tp3\molecule.c
+	<stdio.h>
+	<stdlib.h>
+	"Molecule.h"
+
+1448046100 d:\documentos\aeds\ii\tp3\molecule.h
+
+1448045251 source:d:\documentos\aeds\ii\tp3\readdata.c
+	<stdio.h>
+	<string.h>
+	"ReadData.h"
+
+1448045241 d:\documentos\aeds\ii\tp3\readdata.h
+
+1448048702 source:d:\documentos\aeds\ii\tp3\index.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	"Molecule.h"
+	"Binder.h"
+	"ReadData.h"
+
+1448047019 d:\documentos\aeds\ii\tp3\point.h
+
+1448047037 source:d:\documentos\aeds\ii\tp3\point.c
+	<string.h>
+	<stdio.h>
+	<stdlib.h>
+	"Point.h"
+

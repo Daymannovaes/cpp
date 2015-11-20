@@ -17,7 +17,7 @@ typedef struct {
     Binder *binder; //array of binders
     float edge;
 
-    Point minorPoint, majorPoint;
+    Point *minorPoint, *majorPoint;
 } THandler;
 
 THandler *initHandler(float edge);
@@ -52,16 +52,28 @@ THandler *initHandler(float edge) {
 void readAllBinders(FILE *file) {
     char *str;
     Binder *binder;
+    Molecule *molecule;
 
     do {
         str = readLineFrom(file);
         if(strIsBinderName(str)) {
             binder = createBinder(str + 6 * sizeof(char));
+            molecule = createMolecule();
 
-
-            printf("binder name %s", binder->name);
+            str = readLineFrom(file);
+            Handler.minorPoint = createPointFromStr(str);
+            str = readLineFrom(file);
+            Handler.majorPoint = createPointFromStr(str);
         }
         else {
+            if(strIsMoleculePoint(str)) {
+                printf("\nadicionando molecula\n");
+                //molecule_addPoint(str);
+            }
+            else if(strIsBinderPoint(str)) {
+                printf("\nadicionando ligante\n");
+                //binder_addPoint(str);
+            }
             //binder or protein point
         }
     } while(!stopReading(str, file));

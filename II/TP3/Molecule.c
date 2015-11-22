@@ -17,3 +17,15 @@ Molecule *createMolecule() {
 
     return molecule;
 }
+
+void addMoleculePoint(Molecule *molecule, char *str) {
+    char *delimiter = " ";
+
+    strtok(str, delimiter);
+    strtok(NULL, delimiter);
+
+    Point *point = createPointFromStr(NULL);
+
+    molecule->point[molecule->pointCounter] = *point;
+    molecule->pointCounter++;
+}

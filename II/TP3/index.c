@@ -67,14 +67,11 @@ void readAllBinders(FILE *file) {
         }
         else {
             if(strIsMoleculePoint(str)) {
-                printf("\nadicionando molecula\n");
-                //molecule_addPoint(str);
+                addMoleculePoint(molecule, str);
             }
             else if(strIsBinderPoint(str)) {
-                printf("\nadicionando ligante\n");
-                //binder_addPoint(str);
+                addBinderPoint(binder, str);
             }
-            //binder or protein point
         }
     } while(!stopReading(str, file));
 }

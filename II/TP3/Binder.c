@@ -23,3 +23,15 @@ Binder *createBinder(char *name) {
 
     return binder;
 }
+
+void addBinderPoint(Binder *binder, char *str) {
+    char *delimiter = " ";
+
+    strtok(str, delimiter);
+    strtok(NULL, delimiter);
+
+    Point *point = createPointFromStr(NULL);
+
+    binder->point[binder->pointCounter] = *point;
+    binder->pointCounter++;
+}

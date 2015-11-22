@@ -11,6 +11,7 @@ typedef struct {
 
 
 Binder *createBinder(char *name);
+void addBinderPoint(Binder *binder, char *str);
 
 int strIsBinderName(char *str);
 int strIsBinderPoint(char *str);

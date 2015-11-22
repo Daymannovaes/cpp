@@ -10,6 +10,7 @@ typedef struct {
 
 
 Molecule *createMolecule();
+void addMoleculePoint(Molecule *molecule, char *str);
 
 int strIsBinderName(char *str);
 int strIsMoleculePoint(char *str);

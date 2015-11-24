@@ -63,6 +63,34 @@ int inverse(int p, int a) {
 	printf("\n\n\tO inverso de %d em %d eh: %d.\n\n", a, p, D);
 }
 
+void phi(int k) {
+    int x;
+    float y;
+
+    x = ceil(sqrt(k));
+    y = sqrt(x*x - k);
+    printf("\n  x  |  y \n", k);
+    printf("  %d  |  %f  \n", x, y);
+    while((int)y != y) {
+        x++;
+        y = sqrt(x*x - k);
+
+        printf("  %d  |  %f  \n", x, y);
+
+        //getch();
+    }
+
+    //se for primo
+    if(x+y == k) {
+        printf("\n\t%d primo", k);
+        printf("\n\tphi(%d) = %d - 1 = %d\n ", k, k, k-1);
+    }
+    else {
+        printf("\n\t%d = (x + y)(x - y) = (%d + %.0f)(%d - %0.f) = %.0f*%.0f", k, x, y, x, y, (x+y), (x-y));
+        printf("\n\tphi(%d) = (%0.f - 1)(%0.f - 1) = %0.f*%0.f = %0.f\n", k, x+y, x-y, x+y-1, x-y-1, (x+y-1)*(x-y-1));
+    }
+}
+
 void menu() {
     int op;
     printf("\n");
@@ -83,6 +111,7 @@ void menu() {
         menuInverse();
         break;
     case 2:
+        menuPhi();
         break;
     case 3:
         break;
@@ -92,6 +121,7 @@ void menu() {
 
     menu();
 }
+
 
 void menuInverse() {
     printf("\n");
@@ -104,6 +134,18 @@ void menuInverse() {
     scanf("%d", &n2);
 
     inverse(n1, n2);
+
+    printf("\n\tAperte qualquer tecla para retornar.");
+    getch();
+}
+void menuPhi() {
+    printf("\n");
+
+    int k;
+    printf("\tDigite k: ");
+    scanf("%d", &k);
+
+    phi(k);
 
     printf("\n\tAperte qualquer tecla para retornar.");
     getch();

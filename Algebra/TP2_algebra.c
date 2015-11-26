@@ -60,7 +60,7 @@ int inverse(int p, int a) {
     if(C < 0)
         D = -D;
 
-	printf("\n\n\tO inverso de %d em %d eh: %d.\n\n", a, p, D);
+	printf("\n\n\tInverso de %d em %d: %d.\n\n", a, p, D);
 }
 
 int isPrime(int k) {
@@ -80,17 +80,42 @@ int isPrime(int k) {
 void phi(int k) {
     int i, j;
     int terms[MAX];
-    int partial = 1;
+    int partial = k;
     int countTerms = 0;
 
-    for(i=2; i<k || partial != k; i++) {
-        if(isPrime(i) && k%i == 0) {
+    for(i=2; i<k || partial != 1; i++) {
+        if(isPrime(i) && partial%i == 0) {
             terms[countTerms] = i;
             countTerms++;
-            partial *= i;
-            printf("%d*",i);
+            partial /= i;
+            i--; //try again
         }
     }
+
+
+    int phiResult = 1;
+    int lastTerm = terms[0];
+    int countRepeatedTerms = 1;
+    printf("\n\t%d = ", k);
+    for(i=1; i<countTerms; i++) {
+
+        if(terms[i] == lastTerm)
+            countRepeatedTerms++;
+        else {
+            printf("%d^%d * ", lastTerm, countRepeatedTerms);
+            phiResult *= pow(lastTerm, countRepeatedTerms) - pow(lastTerm, countRepeatedTerms-1);
+            countRepeatedTerms = 1;
+        }
+
+        lastTerm = terms[i];
+    }
+    printf("%d^%d", lastTerm, countRepeatedTerms);
+    phiResult *= pow(lastTerm, countRepeatedTerms) - pow(lastTerm, countRepeatedTerms-1);
+
+    printf("\n\tphi(%d) = %d\n\n", k, phiResult);
+}
+
+void gen() {
 }
 
 void menu() {
@@ -116,6 +141,7 @@ void menu() {
         menuPhi();
         break;
     case 3:
+        menuGen();
         break;
     case 4:
         exit(0);
@@ -152,6 +178,18 @@ void menuPhi() {
     printf("\n\tAperte qualquer tecla para retornar.");
     getch();
 }
+
+void menuGen() {
+    printf("\n");
+    printf("Nothing here yet\n");
+
+
+    gen();
+
+    printf("\n\tAperte qualquer tecla para retornar.");
+    getch();
+}
+
 
 int main() {
     menu();

@@ -1,15 +1,29 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
 
+
+// ----- VAR DECLARATIONS
 int A, P, E;
 int a, n, e;
 
-//just an alias
-int exponentiation(a, e, _n) {
+
+// ----- FUNCTIONS DECLARATIONS
+int stage1(int, int, int);
+int stage2();
+int stage3();
+int stage4();
+int stage5();
+
+
+// ----- FUNCTION IMPLEMENTATION
+
+//alias
+int exponentiation(int a, int e, int _n) {
     return stage1(a, e, _n);
 }
 
-int stage1(a, e, _n) {
+int stage1(int a, int e, int _n) {
 	A = a;
 	P = 1;
 	E = e;
@@ -20,7 +34,6 @@ int stage1(a, e, _n) {
 
 int stage2() {
 	if(E == 0) {
-		//printf("\n\t%d^%d congruente %d mod %d\n", a, e, P, n);
 		return P;
 	}
 
@@ -50,19 +63,10 @@ int stage5() {
 }
 
 int rmax(int r, int p) {
-    return r >= (pow(2, p/2) -1)/(2*p);
+    return r >= (pow(2, p/2) - 1)/(2*p);
 }
 
 int main() {
-    /*printf("Digite o valor de a: ");
-    scanf("%d", &a);
-
-    printf("Digite o valor de e: ");
-    scanf("%d", &e);
-
-    printf("Digite o valor de n: ");
-    scanf("%d", &n);*/
-
     int p, q, r;
     int exponentiationResult;
     printf("Digite p: ");
@@ -77,7 +81,7 @@ int main() {
 
         if(exponentiationResult == 1) {
             printf("\n\n\t%d e' um fator de M(%d) = 2^%d - 1\n\n", q, p, p);
-            exit(0);
+            return 0;
         }
         r++;
     }

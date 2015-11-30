@@ -1,4 +1,7 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <time.h>
 #define MAX 1000
 
 typedef struct {
@@ -6,6 +9,16 @@ typedef struct {
 } Line;
 
 Line lines[MAX];
+
+
+void menuInverse();
+void menuPhi();
+void menuGen();
+int inverse(int p, int a);
+int isPrime(int k);
+void phi(int k);
+void gen();
+void menu();
 
 int inverse(int p, int a) {
 	int c = 0; //contador de linhas
@@ -116,6 +129,106 @@ void phi(int k) {
 }
 
 void gen() {
+	srand(time(NULL));
+	int i;
+	int rPrime = 1, sPrime = 1;
+
+	int bits19 = pow(2, 19);
+	int bits20 = bits19 * 2;
+	
+	int r = rand()%(bits20 - bits19) + bits19;
+	int s = rand()%(bits20 - bits19) + bits19;
+r = 13;
+	if(r%2 == 0) r++;
+	if(s%2 == 0) s++;
+
+	printf("\n\n\tR: %d \n\tS: %d\n", r, s);
+
+	for(i=2; i<=5000; i++) {
+		if(isPrime(i)) {
+			if(r%i == 0) {
+				printf("\n\t R e' divisivel pelo primo %d", i);
+				rPrime = 0;
+			}
+			if(s%i == 0) {
+				printf("\n\t S e' divisivel pelo primo %d", i);
+				sPrime = 0;
+			}
+		}
+	}
+	if(!rPrime) {
+		printf("\n\n\tR nao e' primo");
+	}
+	else if((int)pow(2, r-1)%r != 1 && rPrime) {
+		printf("\n\t R nao e' primo pelo teste de Miller com base = %d", 2);
+	}
+	else if((int)pow(3, r-1)%r != 1 && rPrime) {
+		printf("\n\t R nao e' primo pelo teste de Miller com base = %d", 3);
+	}
+	else if((int)pow(5, r-1)%r != 1 && rPrime) {
+		printf("\n\t R nao e' primo pelo teste de Miller com base = %d", 5);
+	}
+	else if((int)pow(5, r-1)%r != 1 && rPrime) {
+		printf("\n\t R nao e' primo pelo teste de Miller com base = %d", 5);
+	}
+	else if((int)pow(7, r-1)%r != 1 && rPrime) {
+		printf("\n\t R nao e' primo pelo teste de Miller com base = %d", 7);
+	}
+	else if((int)pow(11, r-1)%r != 1 && rPrime) {
+		printf("\n\t R nao e' primo pelo teste de Miller com base = %d", 11);
+	}
+	else if((int)pow(13, r-1)%r != 1 && rPrime) {
+		printf("\n\t R nao e' primo pelo teste de Miller com base = %d", 13);
+	}
+	else if((int)pow(17, r-1)%r != 1 && rPrime) {
+		printf("\n\t R nao e' primo pelo teste de Miller com base = %d", 17);
+	}
+	else if((int)pow(19, r-1)%r != 1 && rPrime) {
+		printf("\n\t R nao e' primo pelo teste de Miller com base = %d", 19);
+	}
+	else if((int)pow(23, r-1)%r != 1 && rPrime) {
+		printf("\n\t R nao e' primo pelo teste de Miller com base = %d", 23);
+	}
+	else {
+		printf("\n\n\t R provavelmente e' primo");
+	}
+
+	if(!sPrime) {
+		printf("\n\n\tS nao e' primo");
+	}
+	else if((int)pow(2, s-1)%r != 1 && sPrime) {
+		printf("\n\t S nao e' primo pelo teste de Miller com base = %d", 2);
+	}
+	else if((int)pow(3, s-1)%r != 1 && sPrime) {
+		printf("\n\t S nao e' primo pelo teste de Miller com base = %d", 3);
+	}
+	else if((int)pow(5, s-1)%r != 1 && sPrime) {
+		printf("\n\t S nao e' primo pelo teste de Miller com base = %d", 5);
+	}
+	else if((int)pow(5, s-1)%r != 1 && sPrime) {
+		printf("\n\t S nao e' primo pelo teste de Miller com base = %d", 5);
+	}
+	else if((int)pow(7, s-1)%r != 1 && sPrime) {
+		printf("\n\t S nao e' primo pelo teste de Miller com base = %d", 7);
+	}
+	else if((int)pow(11,s-1)%r != 1 && sPrime) {
+		printf("\n\t S nao e' primo pelo teste de Miller com base = %d", 11);
+	}
+	else if((int)pow(13, s-1)%r != 1 && sPrime) {
+		printf("\n\t S nao e' primo pelo teste de Miller com base = %d", 13);
+	}
+	else if((int)pow(17, s-1)%r != 1 && sPrime) {
+		printf("\n\t S nao e' primo pelo teste de Miller com base = %d", 17);
+	}
+	else if((int)pow(19, s-1)%r != 1 && sPrime) {
+		printf("\n\t S nao e' primo pelo teste de Miller com base = %d", 19);
+	}
+	else if((int)pow(23, s-1)%r != 1 && sPrime) {
+		printf("\n\t S nao e' primo pelo teste de Miller com base = %d", 23);
+	}
+	else {
+		printf("\n\n\t S provavelmente e' primo");
+	}
 }
 
 void menu() {
@@ -162,9 +275,6 @@ void menuInverse() {
     scanf("%d", &n2);
 
     inverse(n1, n2);
-
-    printf("\n\tAperte qualquer tecla para retornar.");
-    getch();
 }
 void menuPhi() {
     printf("\n");
@@ -174,9 +284,6 @@ void menuPhi() {
     scanf("%d", &k);
 
     phi(k);
-
-    printf("\n\tAperte qualquer tecla para retornar.");
-    getch();
 }
 
 void menuGen() {
@@ -185,9 +292,6 @@ void menuGen() {
 
 
     gen();
-
-    printf("\n\tAperte qualquer tecla para retornar.");
-    getch();
 }
 
 

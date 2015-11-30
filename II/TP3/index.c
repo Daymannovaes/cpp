@@ -2,22 +2,22 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "Molecule.h"
-#include "Binder.h"
+#include "Point.h"
+#include "Octree.h"
 
 #include "ReadData.h"
 
 char STOP_STR[2] = "-1";
 int stopReading(char *str, FILE *file);
+int strNull(char *str);
 FILE *defineFile(/*char *fileName*/);
 
 int MAX_BINDERS = 100;
 typedef struct {
-    int binderCounter;
-    Binder *binder; //array of binders
     float edge;
 
-    Point *minorPoint, *majorPoint;
+    char **binderNames;
+    Octree *octree;
 } THandler;
 
 THandler *initHandler(float edge);
@@ -33,7 +33,7 @@ int main() {
     return 0;
 }
 FILE *defineFile(/*char *fileName*/) {
-    //return fopen("input.txt", "r");
+    return fopen("input.txt", "r");
     return stdin;
 }
 
@@ -41,9 +41,11 @@ THandler *initHandler(float edge) {
     THandler *handler;
     handler = malloc(sizeof(THandler));
 
-    handler->binderCounter = 0;
-    handler->binder = malloc(MAX_BINDERS * sizeof(Binder));
     handler->edge = edge;
+    handler->octree = malloc(sizeof(Octree));
+    handler->octree->isLeaf = 1;
+    handler->octree->data = NULL;
+    //handler->binderNames = malloc(MAX_BINDERS * sizeof(char*));
 
     return handler;
 }
@@ -51,26 +53,32 @@ THandler *initHandler(float edge) {
 
 void readAllBinders(FILE *file) {
     char *str;
-    Binder *binder;
-    Molecule *molecule;
-
+    Point *binderPoint;
     do {
         str = readLineFrom(file);
         if(strIsBinderName(str)) {
-            binder = createBinder(str + 6 * sizeof(char));
-            molecule = createMolecule();
+
+            freeOctree(Handler.octree);
+            Handler.octree = malloc(sizeof(Octree));
+            Handler.octree->isLeaf = 1;
+            Handler.octree->data = NULL;
+            getch();
 
             str = readLineFrom(file);
-            Handler.minorPoint = createPointFromStr(str);
+            Handler.octree->minPoint = *createPointFromStr(str);
             str = readLineFrom(file);
-            Handler.majorPoint = createPointFromStr(str);
+            Handler.octree->maxPoint = *createPointFromStr(str);
+
         }
-        else {
+        else if(!strNull(str)) {
             if(strIsMoleculePoint(str)) {
-                addMoleculePoint(molecule, str);
+                addMoleculePoint(Handler.octree, str);
+                printf("\n addm \n");
             }
             else if(strIsBinderPoint(str)) {
-                addBinderPoint(binder, str);
+                //addBinderPoint(binder, str);
+
+                // compare with octree and update actual Binder
             }
         }
     } while(!stopReading(str, file));
@@ -78,4 +86,7 @@ void readAllBinders(FILE *file) {
 
 int stopReading(char *str, FILE *file) {
     return feof(file) || !strcmp(str, STOP_STR);
+}
+int strNull(char *str) {
+    return strlen(str) == 0;
 }

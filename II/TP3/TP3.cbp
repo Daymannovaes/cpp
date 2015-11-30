@@ -31,14 +31,10 @@
 		<Compiler>
 			<Add option="-Wall" />
 		</Compiler>
-		<Unit filename="Binder.c">
+		<Unit filename="Octree.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="Binder.h" />
-		<Unit filename="Molecule.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="Molecule.h" />
+		<Unit filename="Octree.h" />
 		<Unit filename="Point.c">
 			<Option compilerVar="CC" />
 		</Unit>

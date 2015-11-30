@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1448226470 source:d:\documentos\aeds\ii\tp3\binder.c
+1448227909 source:d:\documentos\aeds\ii\tp3\binder.c
 	<string.h>
 	<stdio.h>
 	<stdlib.h>
@@ -9,27 +9,27 @@
 1448226459 d:\documentos\aeds\ii\tp3\binder.h
 	"Point.h"
 
-1448050013 source:d:\documentos\aeds\ii\tp3\molecule.c
+1448227724 source:d:\documentos\aeds\ii\tp3\molecule.c
 	<stdio.h>
 	<stdlib.h>
 	"Molecule.h"
 
-1448049982 d:\documentos\aeds\ii\tp3\molecule.h
+1448226412 d:\documentos\aeds\ii\tp3\molecule.h
 	"Point.h"
 
-1448045251 source:d:\documentos\aeds\ii\tp3\readdata.c
+1448651471 source:d:\documentos\aeds\ii\tp3\readdata.c
 	<stdio.h>
 	<string.h>
 	"ReadData.h"
 
-1448045241 d:\documentos\aeds\ii\tp3\readdata.h
+1448651476 d:\documentos\aeds\ii\tp3\readdata.h
 
-1448050075 source:d:\documentos\aeds\ii\tp3\index.c
+1448914375 source:d:\documentos\aeds\ii\tp3\index.c
 	<stdio.h>
 	<stdlib.h>
 	<string.h>
-	"Molecule.h"
-	"Binder.h"
+	"Point.h"
+	"Octree.h"
 	"ReadData.h"
 
 1448049274 d:\documentos\aeds\ii\tp3\point.h
@@ -39,4 +39,13 @@
 	<stdio.h>
 	<stdlib.h>
 	"Point.h"
+
+1448910655 d:\documentos\aeds\ii\tp3\octree.h
+
+1448913763 source:d:\documentos\aeds\ii\tp3\octree.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	"Point.h"
+	"Octree.h"
 

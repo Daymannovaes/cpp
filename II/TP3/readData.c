@@ -20,3 +20,13 @@ void removeNewLine(char *str) {
     if (str[strlen(str) - 1] == '\n')
         str[strlen(str) - 1] = '\0';
 }
+
+int strIsBinderName(char *str) {
+    return strstr(str, "Nome: ") != NULL;
+}
+int strIsBinderPoint(char *str) {
+    return strstr(str, "LIGANTE ") != NULL;
+}
+int strIsMoleculePoint(char *str) {
+    return strstr(str, "PROTEINA ") != NULL;
+}

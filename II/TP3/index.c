@@ -72,7 +72,7 @@ void readAllBinders(FILE *file) {
         else if(!strNull(str)) {
             if(strIsMoleculePoint(str)) {
                 addMoleculePoint(Handler.octree, str);
-                printf("\n addm \n");
+               // printf("\n addm \n");
             }
             else if(strIsBinderPoint(str)) {
                 //addBinderPoint(binder, str);
@@ -89,5 +89,5 @@ int stopReading(char *str, FILE *file) {
     return feof(file) || !strcmp(str, STOP_STR);
 }
 int strNull(char *str) {
-    return strlen(str) == 0;
+    return str == NULL || strlen(str) == 0;
 }

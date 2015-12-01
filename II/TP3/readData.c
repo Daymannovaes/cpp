@@ -17,16 +17,16 @@ char *readLineFrom(FILE *file) {
     return str;
 }
 void removeNewLine(char *str) {
-    if (str[strlen(str) - 1] == '\n')
+    if (str != NULL && str[strlen(str) - 1] == '\n')
         str[strlen(str) - 1] = '\0';
 }
 
 int strIsBinderName(char *str) {
-    return strstr(str, "Nome: ") != NULL;
+    return str != NULL && strstr(str, "Nome: ") != NULL;
 }
 int strIsBinderPoint(char *str) {
-    return strstr(str, "LIGANTE ") != NULL;
+    return str != NULL && strstr(str, "LIGANTE ") != NULL;
 }
 int strIsMoleculePoint(char *str) {
-    return strstr(str, "PROTEINA ") != NULL;
+    return str != NULL && strstr(str, "PROTEINA ") != NULL;
 }

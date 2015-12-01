@@ -7,20 +7,21 @@
 int i;
 void insertPoint(Octree *octree, Point point) {
     i++;
-    printf("\n\t test");
-    printf("\n\n\t (%d) Inserindo (%f, %f, %f)", i, point.x, point.y, point.z);
-    printf("\n\t Dentro de (%f, %f, %f) e (%f, %f, %f)", octree->minPoint.x, octree->minPoint.y, octree->minPoint.z, octree->maxPoint.x, octree->maxPoint.y, octree->maxPoint.z);
-    printf("\n\t isLeaf: %d", octree->isLeaf);
-    printf("\n\t dataNull: %d", !octree->hasData);
-    printf("\n\t child[0]Null: %d\n", octree->children[0] == NULL);
+    //printf("\n\t test");
+    //printf("\n\n\t (%d) Inserindo (%f, %f, %f)", i, point.x, point.y, point.z);
+    //printf("\n\t Dentro de (%f, %f, %f) e (%f, %f, %f)", octree->minPoint.x, octree->minPoint.y, octree->minPoint.z,
+//                                                         octree->maxPoint.x, octree->maxPoint.y, octree->maxPoint.z);
+    //printf("\n\t isLeaf: %d", octree->isLeaf);
+    //printf("\n\t dataNull: %d", !octree->hasData);
+    //printf("\n\t child[0]Null: %d\n", octree->children[0] == NULL);
 
     if(octree->isLeaf) {
         if(!octree->hasData) {
-                printf("\na\n");
-                printf("\nb\n");
+                //printf("\na\n");
+                //printf("\nb\n");
             octree->data = point;
             octree->hasData = 1;
-                printf("\nc\n");
+                //printf("\nc\n");
             return;
         }
         else {
@@ -32,11 +33,17 @@ void insertPoint(Octree *octree, Point point) {
     }
     else {
         Octree *child;
-
-        if(octree->children[0] == NULL)
+        //printf("\n oa \n");
+        if(octree->children[0] == NULL){
+            //printf("\n splitting \n");
             splitOctree(octree); //create the 8 children
+        }
 
+        //printf("\n ob \n");
         child = findChild(octree, point);
+
+        //printf("\n oc \n");
+
         insertPoint(child, point);
         return;
     }
@@ -92,31 +99,43 @@ void splitOctree(Octree *octree) {
 Octree *findChild(Octree *octree, Point point) {
     int i;
 
+        //printf("\n fa \n");
     for(i=0; i<8; i++) {
-        if(isPointInsideBox(octree->children[i], point))
+        //printf("\n fb \n");
+        //printf("\n fbp [i]: %p \n", octree->children[i]);
+        //printf("\n fbp null? [i]: %d \n", octree->children[i] == NULL);
+        if(isPointInsideBox(octree->children[i], point)) {
+            //printf("\n fcc \n");
             return octree->children[i];
+        }
     }
+
+        //printf("\n fz \n");
 
     for(i=0; i<8; i++) {
-        printf("\n\n\t Procurando em \n\t (%f, %f, %f) \n\t (%f, %f, %f)",
-               octree->children[i]->minPoint.x, octree->children[i]->minPoint.y, octree->children[i]->minPoint.z,
-               octree->children[i]->maxPoint.x, octree->children[i]->maxPoint.y, octree->children[i]->maxPoint.z);
+        //printf("\n\n\t Procurando em \n\t (%f, %f, %f) \n\t (%f, %f, %f)",
+ //              octree->children[i]->minPoint.x, octree->children[i]->minPoint.y, octree->children[i]->minPoint.z,
+   //            octree->children[i]->maxPoint.x, octree->children[i]->maxPoint.y, octree->children[i]->maxPoint.z);
     }
-    printf("\np(%f, %f, %f)", point.x, point.y, point.z);
+    //printf("\np(%f, %f, %f)", point.x, point.y, point.z);
 
-    printf("\n\n\tAlgo deu errado, não foi possivel encontrar o lugar para o ponto\n\n");
+    //printf("\n\n\tAlgo deu errado, não foi possivel encontrar o lugar para o ponto\n\n");
     //getch();
     return NULL;
 }
 
 int isPointInsideBox(Octree *octree, Point point) {
     // se for menor que omenor ou maior que o maior
+        //printf("\n ia \n");
     if(point.x < octree->minPoint.x || point.x > octree->maxPoint.x)
         return 0;
+        //printf("\n ib \n");
     if(point.y < octree->minPoint.y || point.y > octree->maxPoint.y)
         return 0;
+        //printf("\n ic \n");
     if(point.z < octree->minPoint.z || point.z > octree->maxPoint.z)
         return 0;
+        //printf("\n id \n");
 
     return 1;
 }

@@ -7,16 +7,18 @@ typedef struct Octree {
 
     int isLeaf;
 
-    Point *data;
+    Point data;
+    int hasData;
+
     struct Octree *children[8];
 
 } Octree;
 
-void insertPoint(Octree *octree, Point *point);
+void insertPoint(Octree *octree, Point point);
 void splitOctree(Octree *octree);
-void insertPointInChild(Octree *octree, Point *point);
-Octree *findChild(Octree *octree, Point *point);
-int isPointInsideBox(Octree *octree, Point *point);
+void insertPointInChild(Octree *octree, Point point);
+Octree *findChild(Octree *octree, Point point);
+int isPointInsideBox(Octree *octree, Point point);
 
 float halfX(Octree *octree);
 float halfY(Octree *octree);

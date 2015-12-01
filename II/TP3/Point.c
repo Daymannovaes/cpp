@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include "Point.h"
 
-Point *createPointFromStr(char *str) {
+Point createPointFromStr(char *str) {
     char *delimiter = " ";
     float x, y, z;
 
@@ -13,20 +13,20 @@ Point *createPointFromStr(char *str) {
 
     return createPoint(x, y, z);
 }
-Point *createPoint(float x, float y, float z) {
-    Point *point = malloc(sizeof(Point));
+Point createPoint(float x, float y, float z) {
+    Point point;
 
-    point->x = x;
-    point->y = y;
-    point->z = z;
+    point.x = x;
+    point.y = y;
+    point.z = z;
 
     return point;
 }
-Point *createPointWithName(float x, float y, float z, char *name) {
-    Point *point = createPoint(x, y, z);
+Point createPointWithName(float x, float y, float z, char *name) {
+    Point point = createPoint(x, y, z);
 
-    point->name = malloc(strlen(name) + 1 * sizeof(char));
-    strcpy(point->name, name);
+    point.name = malloc(strlen(name) + 1 * sizeof(char));
+    strcpy(point.name, name);
 
     return point;
 }

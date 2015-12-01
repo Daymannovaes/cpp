@@ -16,18 +16,18 @@ int MAX_BINDERS = 100;
 typedef struct {
     float edge;
 
-    char **binderNames;
+    //char **binderNames;
     Octree *octree;
 } THandler;
 
-THandler *initHandler(float edge);
+THandler initHandler(float edge);
 
 THandler Handler;
 int main() {
     FILE *file = defineFile();
     float edge = defineEdge(file); //readData.c
 
-    Handler = *initHandler(edge);
+    Handler = initHandler(edge);
     readAllBinders(file);
 
     return 0;
@@ -37,14 +37,13 @@ FILE *defineFile(/*char *fileName*/) {
     return stdin;
 }
 
-THandler *initHandler(float edge) {
-    THandler *handler;
-    handler = malloc(sizeof(THandler));
+THandler initHandler(float edge) {
+    THandler handler;
 
-    handler->edge = edge;
-    handler->octree = malloc(sizeof(Octree));
-    handler->octree->isLeaf = 1;
-    handler->octree->data = NULL;
+    handler.edge = edge;
+    handler.octree = malloc(sizeof(Octree));
+    handler.octree->isLeaf = 1;
+    handler.octree->hasData = 0;
     //handler->binderNames = malloc(MAX_BINDERS * sizeof(char*));
 
     return handler;
@@ -61,13 +60,13 @@ void readAllBinders(FILE *file) {
             freeOctree(Handler.octree);
             Handler.octree = malloc(sizeof(Octree));
             Handler.octree->isLeaf = 1;
-            Handler.octree->data = NULL;
-            getch();
+            Handler.octree->hasData = 0;
+            //getch();
 
             str = readLineFrom(file);
-            Handler.octree->minPoint = *createPointFromStr(str);
+            Handler.octree->minPoint = createPointFromStr(str);
             str = readLineFrom(file);
-            Handler.octree->maxPoint = *createPointFromStr(str);
+            Handler.octree->maxPoint = createPointFromStr(str);
 
         }
         else if(!strNull(str)) {
@@ -82,6 +81,8 @@ void readAllBinders(FILE *file) {
             }
         }
     } while(!stopReading(str, file));
+
+    freeOctree(Handler.octree);
 }
 
 int stopReading(char *str, FILE *file) {

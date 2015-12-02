@@ -24,7 +24,7 @@
 
 1449094740 d:\documentos\aeds\ii\tp3\readdata.h
 
-1449098043 source:d:\documentos\aeds\ii\tp3\index.c
+1449099612 source:d:\documentos\aeds\ii\tp3\index.c
 	<stdio.h>
 	<stdlib.h>
 	<string.h>
@@ -32,17 +32,17 @@
 	"Octree.h"
 	"ReadData.h"
 
-1449095087 d:\documentos\aeds\ii\tp3\point.h
+1449099559 d:\documentos\aeds\ii\tp3\point.h
 
-1449095132 source:d:\documentos\aeds\ii\tp3\point.c
+1449099542 source:d:\documentos\aeds\ii\tp3\point.c
 	<string.h>
 	<stdio.h>
 	<stdlib.h>
 	"Point.h"
 
-1449098148 d:\documentos\aeds\ii\tp3\octree.h
+1449099505 d:\documentos\aeds\ii\tp3\octree.h
 
-1449098211 source:d:\documentos\aeds\ii\tp3\octree.c
+1449099626 source:d:\documentos\aeds\ii\tp3\octree.c
 	<stdio.h>
 	<stdlib.h>
 	<string.h>

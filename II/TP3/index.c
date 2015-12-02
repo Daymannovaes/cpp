@@ -52,8 +52,8 @@ THandler initHandler(float edge) {
 
 void readAllBinders(FILE *file) {
     char *str;
-    int sum;
-    Point binder;
+    int binderStength = 0;
+    Point binder, protein;
     Point pmin, pmax;
     Point origin, halfDimension;
 
@@ -73,18 +73,18 @@ void readAllBinders(FILE *file) {
 
             createOctree(&Handler.octree, origin, halfDimension);
 
-            sum = 0;
+            printf("\n binderStength: %d", binderStength);
+            binderStength = 0;
         }
         else if(!strNull(str)) {
             if(strIsMoleculePoint(str)) {
-                addMoleculePoint(Handler.octree, str);
+                protein = createPointFromInputLine(str);
+
+                insertPoint(Handler.octree, protein);
             }
             else if(strIsBinderPoint(str)) {
-                binder = createPointFromStr(str);
-
-                getPointsInsideBox(binder, Handler.octree, Handler.edge, &sum);
-
-                printf("\n sum: %d", sum);
+                binder = createPointFromInputLine(str);
+                binderStength += getPointsInsideBox(binder, Handler.octree, Handler.edge);
             }
         }
     } while(!stopReading(str, file));

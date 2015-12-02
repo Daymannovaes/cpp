@@ -113,17 +113,7 @@ void freeOctree(Octree *octree) {
     free(octree);
 }
 
-void addMoleculePoint(Octree *octree, char *str) {
-    char *delimiter = " ";
-
-    strtok(str, delimiter);
-    strtok(NULL, delimiter);
-
-    Point point = createPointFromStr(NULL);
-    insertPoint(octree, point);
-}
-
-void getPointsInsideBox(Point binder, Octree *octree, double edge, int *sum){
+int getPointsInsideBox(Point binder, Octree *octree, double edge) {
     int i;
     Point minPoint, maxPoint;
     Point edgep;
@@ -135,28 +125,32 @@ void getPointsInsideBox(Point binder, Octree *octree, double edge, int *sum){
     minPoint = calculateMinPoint(binder, edgep);
     maxPoint = calculateMaxPoint(binder, edgep);
 
-    if(octree->isLeaf){
-        //node is leaf, check if there is a point in it
-        if(octree->data != NULL){
+    if(octree->isLeaf) {
+        if(octree->data != NULL) {
             if(octree->data->x > maxPoint.x || octree->data->y > maxPoint.y || octree->data->z > maxPoint.z)
-                return;
+                return 0;
             if(octree->data->x < minPoint.x || octree->data->y < minPoint.y || octree->data->z < minPoint.z)
-                return;
-            (*sum)++;
+                return 0;
+
+            return 1;
         }
     } else {
+        int binderStength = 0;
         Point childMinPoint, childMaxPoint;
         for (i=0; i<8; i++) {
             childMinPoint = calculateOctreeMinPoint(octree->children[i]);
             childMaxPoint = calculateOctreeMaxPoint(octree->children[i]);
+
 
             if (childMaxPoint.x < minPoint.x || childMaxPoint.y < minPoint.y || childMaxPoint.z < minPoint.z)
                 continue;
             if (childMinPoint.x > maxPoint.x || childMinPoint.y > maxPoint.y || childMinPoint.z > maxPoint.z)
                 continue;
 
-            getPointsInsideBox(binder, octree->children[i], edge, sum);
+            binderStength += getPointsInsideBox(binder, octree->children[i], edge);
         }
+
+        return binderStength;
     }
 }
 

@@ -26,8 +26,8 @@ Point calculateMinPoint(Point origin, Point edges);
 Point calculateOctreeMaxPoint(Octree *octree);
 Point calculateOctreeMinPoint(Octree *octree);
 
+int getPointsInsideBox(Point binder, Octree *octree, double edge);
 
 void freeOctree(Octree *octree);
-void addMoleculePoint(Octree *octree, char *str);
 
 #endif

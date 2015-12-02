@@ -3,6 +3,14 @@
 #include <stdlib.h>
 #include "Point.h"
 
+Point createPointFromInputLine(char *str) {
+    char *delimiter = " ";
+
+    strtok(str, delimiter);
+    strtok(NULL, delimiter);
+
+    return createPointFromStr(NULL);
+}
 Point createPointFromStr(char *str) {
     char *delimiter = " ";
     float x, y, z;
@@ -29,4 +37,10 @@ void resetPoint(Point *point) {
     point->x = 0;
     point->y = 0;
     point->z = 0;
+}
+
+void printPoint(Point point, char *label) {
+    printf("\n\n\t (%s) Point", label);
+
+    printf("\n\t (%f, %f, %f) \n\n", point.x, point.y, point.z);
 }

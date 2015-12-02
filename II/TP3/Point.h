@@ -6,11 +6,12 @@ typedef struct {
     char *name; //name of the point (can be null)
 } Point;
 
-Point createPoint(float x, float y, float z);
+Point createPointFromInputLine(char *str);
 Point createPointFromStr(char *str);
-Point createPointWithName(float x, float y, float z, char *name);
+Point createPoint(float x, float y, float z);
 
 void resetPoint(Point *point);
+void printPoint(Point point, char *label);
 
 #endif
 

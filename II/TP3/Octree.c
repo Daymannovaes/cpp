@@ -4,150 +4,113 @@
 #include "Point.h"
 #include "Octree.h"
 
-int i;
-void insertPoint(Octree *octree, Point point) {
-    i++;
-    //printf("\n\t test");
-    //printf("\n\n\t (%d) Inserindo (%f, %f, %f)", i, point.x, point.y, point.z);
-    //printf("\n\t Dentro de (%f, %f, %f) e (%f, %f, %f)", octree->minPoint.x, octree->minPoint.y, octree->minPoint.z,
-//                                                         octree->maxPoint.x, octree->maxPoint.y, octree->maxPoint.z);
-    //printf("\n\t isLeaf: %d", octree->isLeaf);
-    //printf("\n\t dataNull: %d", !octree->hasData);
-    //printf("\n\t child[0]Null: %d\n", octree->children[0] == NULL);
-
+void insertPoint(Octree *octree, Point point){
     if(octree->isLeaf) {
-        if(!octree->hasData) {
-                //printf("\na\n");
-                //printf("\nb\n");
-            octree->data = point;
-            octree->hasData = 1;
-                //printf("\nc\n");
-            return;
-        }
-        else {
+        if(octree->data == NULL) {
+
+            octree->data = malloc(sizeof(Point));
+            (*octree->data) = point;
+
+        } else {
             octree->isLeaf = 0;
-            insertPoint(octree, octree->data);
-            insertPoint(octree, point);
-            return;
-        }
-    }
-    else {
-        Octree *child;
-        //printf("\n oa \n");
-        if(octree->children[0] == NULL){
-            //printf("\n splitting \n");
+
             splitOctree(octree); //create the 8 children
+
+            int selfIndex = getChildIndex(octree, *octree->data);
+            int newIndex = getChildIndex(octree, point);
+
+            insertPoint(octree->children[selfIndex], *octree->data);
+            free(octree->data);
+
+            insertPoint(octree->children[newIndex], point);
+
         }
-
-        //printf("\n ob \n");
-        child = findChild(octree, point);
-
-        //printf("\n oc \n");
-
-        insertPoint(child, point);
-        return;
+    } else {
+        int newIndex = getChildIndex(octree, point);
+        insertPoint(octree->children[newIndex], point);
     }
-}
-
-void freeOctree(Octree *octree) {
-    int i;
-
-    for(i=0; i<8; i++) {
-        if(octree != NULL && octree->children != NULL && octree->children != &octree->children)
-            freeOctree(octree->children[i]);
-    }
-    free(octree);
 }
 
 void splitOctree(Octree *octree) {
     int i;
-    float _halfX = halfX(octree);
-    float _halfY = halfY(octree);
-    float _halfZ = halfZ(octree);
+    Point origin, halfDimension;
+    float offset = 0.5;
 
     for(i=0; i<8; i++) {
-        octree->children[i] = (Octree *)malloc(sizeof(Octree));
-        octree->children[i]->isLeaf = 1;
-        octree->children[i]->hasData = 0;
+        origin = octree->origin;
+
+        halfDimension.x = offset*octree->halfDimension.x;
+        halfDimension.y = offset*octree->halfDimension.y;
+        halfDimension.z = offset*octree->halfDimension.z;
+
+        origin.x += octree->halfDimension.x * (i&4 ? offset : -offset);
+        origin.y += octree->halfDimension.y * (i&2 ? offset : -offset);
+        origin.z += octree->halfDimension.z * (i&1 ? offset : -offset);
+
+        createOctree(&octree->children[i], origin, halfDimension);
     }
-
-    octree->children[0]->minPoint = createPoint(octree->minPoint.x, octree->minPoint.y, octree->minPoint.z);
-    octree->children[0]->maxPoint = createPoint(_halfX, _halfY, _halfZ);
-
-    octree->children[1]->minPoint = createPoint(_halfX, octree->minPoint.y, octree->minPoint.z);
-    octree->children[1]->maxPoint = createPoint(octree->maxPoint.x, _halfY, _halfZ);
-
-    octree->children[2]->minPoint = createPoint(octree->minPoint.x, _halfY, octree->minPoint.z);
-    octree->children[2]->maxPoint = createPoint(_halfX, octree->maxPoint.y, _halfZ);
-
-    octree->children[3]->minPoint = createPoint(_halfX, _halfY, octree->minPoint.z);
-    octree->children[3]->maxPoint = createPoint(octree->maxPoint.x, octree->maxPoint.y, _halfZ);
-
-    octree->children[4]->minPoint = createPoint(octree->minPoint.x, octree->minPoint.y, _halfZ);
-    octree->children[4]->maxPoint = createPoint(_halfX, _halfY, octree->maxPoint.z);
-
-    octree->children[5]->minPoint = createPoint(_halfX, octree->minPoint.y, _halfZ);
-    octree->children[5]->maxPoint = createPoint(octree->maxPoint.x, _halfY, octree->maxPoint.z);
-
-    octree->children[6]->minPoint = createPoint(octree->minPoint.x, _halfY, _halfZ);
-    octree->children[6]->maxPoint = createPoint(_halfX, octree->maxPoint.y, octree->maxPoint.z);
-
-    octree->children[7]->minPoint = createPoint(_halfX, _halfY, _halfZ);
-    octree->children[7]->maxPoint = createPoint(octree->maxPoint.x, octree->maxPoint.y, octree->maxPoint.z);
 }
 
-Octree *findChild(Octree *octree, Point point) {
+void createOctree(Octree **octree, Point origin, Point halfDimension){
     int i;
+    (*octree) = malloc(sizeof(Octree));
 
-        //printf("\n fa \n");
+    (*octree)->origin = origin;
+    (*octree)->halfDimension = halfDimension;
+    (*octree)->isLeaf = 1;
+    (*octree)->data = NULL;
+
     for(i=0; i<8; i++) {
-        //printf("\n fb \n");
-        //printf("\n fbp [i]: %p \n", octree->children[i]);
-        //printf("\n fbp null? [i]: %d \n", octree->children[i] == NULL);
-        if(isPointInsideBox(octree->children[i], point)) {
-            //printf("\n fcc \n");
-            return octree->children[i];
+        (*octree)->children[i] = NULL;
+    }
+
+}
+
+int getChildIndex(Octree *octree, Point point){
+    int index = 0;
+
+    if(point.x >= octree->origin.x) index |= 4;
+    if(point.y >= octree->origin.y) index |= 2;
+    if(point.z >= octree->origin.z) index |= 1;
+
+    return index;
+}
+
+Point calculateOrigin(Point pmax, Point pmin){
+    Point origin;
+
+    origin.x = (pmax.x + pmin.x)/2;
+    origin.y = (pmax.y + pmin.y)/2;
+    origin.z = (pmax.z + pmin.z)/2;
+
+    return origin;
+}
+
+Point calculateHalfDimension(Point origin, Point pmax){
+    Point halfDimension;
+
+    float edge = sqrt(pow((pmax.x-origin.x),2) + pow((pmax.y-origin.y),2) + pow((pmax.z-origin.z),2)) / sqrt(3);
+
+    halfDimension.x = edge;
+    halfDimension.y = edge;
+    halfDimension.z = edge;
+
+    return halfDimension;
+}
+
+void freeOctree(Octree *octree) {
+    int i;
+    for (i=0; i<8; i++) {
+        if (octree->children[i] != NULL) {
+            if (octree->children[i]->isLeaf && octree->children[i]->data != NULL) {
+                free(octree->children[i]->data);
+                octree->children[i]->data = NULL;
+            }
+
+            freeOctree(octree->children[i]);
         }
     }
-
-        //printf("\n fz \n");
-
-    for(i=0; i<8; i++) {
-        //printf("\n\n\t Procurando em \n\t (%f, %f, %f) \n\t (%f, %f, %f)",
- //              octree->children[i]->minPoint.x, octree->children[i]->minPoint.y, octree->children[i]->minPoint.z,
-   //            octree->children[i]->maxPoint.x, octree->children[i]->maxPoint.y, octree->children[i]->maxPoint.z);
-    }
-    //printf("\np(%f, %f, %f)", point.x, point.y, point.z);
-
-    //printf("\n\n\tAlgo deu errado, não foi possivel encontrar o lugar para o ponto\n\n");
-    //getch();
-    return NULL;
-}
-
-int isPointInsideBox(Octree *octree, Point point) {
-    // se for menor que omenor ou maior que o maior
-        //printf("\n ia \n");
-    if(point.x < octree->minPoint.x || point.x > octree->maxPoint.x)
-        return 0;
-        //printf("\n ib \n");
-    if(point.y < octree->minPoint.y || point.y > octree->maxPoint.y)
-        return 0;
-        //printf("\n ic \n");
-    if(point.z < octree->minPoint.z || point.z > octree->maxPoint.z)
-        return 0;
-        //printf("\n id \n");
-
-    return 1;
-}
-
-float halfX(Octree *octree) {
-    return octree->minPoint.x + (octree->maxPoint.x - octree->minPoint.x)/2;
-}
-float halfY(Octree *octree) {
-    return octree->minPoint.y + (octree->maxPoint.y - octree->minPoint.y)/2;
-}
-float halfZ(Octree *octree) {
-    return octree->minPoint.z + (octree->maxPoint.z - octree->minPoint.z)/2;
+    free(octree);
 }
 
 void addMoleculePoint(Octree *octree, char *str) {
@@ -159,4 +122,68 @@ void addMoleculePoint(Octree *octree, char *str) {
     Point point = createPointFromStr(NULL);
     insertPoint(octree, point);
 }
+
+void getPointsInsideBox(Point binder, Octree *octree, double edge, int *sum){
+    int i;
+    Point minPoint, maxPoint;
+    Point edgep;
+
+    edgep.x = edge/2;
+    edgep.y = edge/2;
+    edgep.z = edge/2;
+
+    minPoint = calculateMinPoint(binder, edgep);
+    maxPoint = calculateMaxPoint(binder, edgep);
+
+    if(octree->isLeaf){
+        //node is leaf, check if there is a point in it
+        if(octree->data != NULL){
+            if(octree->data->x > maxPoint.x || octree->data->y > maxPoint.y || octree->data->z > maxPoint.z)
+                return;
+            if(octree->data->x < minPoint.x || octree->data->y < minPoint.y || octree->data->z < minPoint.z)
+                return;
+            (*sum)++;
+        }
+    } else {
+        Point childMinPoint, childMaxPoint;
+        for (i=0; i<8; i++) {
+            childMinPoint = calculateOctreeMinPoint(octree->children[i]);
+            childMaxPoint = calculateOctreeMaxPoint(octree->children[i]);
+
+            if (childMaxPoint.x < minPoint.x || childMaxPoint.y < minPoint.y || childMaxPoint.z < minPoint.z)
+                continue;
+            if (childMinPoint.x > maxPoint.x || childMinPoint.y > maxPoint.y || childMinPoint.z > maxPoint.z)
+                continue;
+
+            getPointsInsideBox(binder, octree->children[i], edge, sum);
+        }
+    }
+}
+
+
+Point calculateMaxPoint(Point origin, Point edges) {
+    Point point;
+
+    point.x = origin.x + edges.x;
+    point.y = origin.y + edges.y;
+    point.z = origin.z + edges.z;
+
+    return point;
+}
+
+Point calculateMinPoint(Point origin, Point edges) {
+    edges.x = -edges.x;
+    edges.y = -edges.y;
+    edges.z = -edges.z;
+
+    return calculateMaxPoint(origin, edges);
+}
+
+Point calculateOctreeMaxPoint(Octree *octree) {
+    return calculateMaxPoint(octree->origin, octree->halfDimension);
+}
+Point calculateOctreeMinPoint(Octree *octree) {
+    return calculateMinPoint(octree->origin, octree->halfDimension);
+}
+
 

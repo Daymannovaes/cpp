@@ -2,13 +2,12 @@
 #define _OCTREE_H
 
 typedef struct Octree {
-    Point minPoint;
-    Point maxPoint;
+    Point origin;
+    Point halfDimension;
 
     int isLeaf;
 
-    Point data;
-    int hasData;
+    Point *data;
 
     struct Octree *children[8];
 
@@ -16,14 +15,19 @@ typedef struct Octree {
 
 void insertPoint(Octree *octree, Point point);
 void splitOctree(Octree *octree);
-void insertPointInChild(Octree *octree, Point point);
-Octree *findChild(Octree *octree, Point point);
-int isPointInsideBox(Octree *octree, Point point);
+void createOctree(Octree **octree, Point origin, Point halfDimension);
+int getChildIndex(Octree *octree, Point point);
 
-float halfX(Octree *octree);
-float halfY(Octree *octree);
-float halfZ(Octree *octree);
+Point calculateOrigin(Point pmax, Point pmin);
+Point calculateHalfDimension(Point origin, Point pmax);
+
+Point calculateMaxPoint(Point origin, Point edges);
+Point calculateMinPoint(Point origin, Point edges);
+Point calculateOctreeMaxPoint(Octree *octree);
+Point calculateOctreeMinPoint(Octree *octree);
+
 
 void freeOctree(Octree *octree);
+void addMoleculePoint(Octree *octree, char *str);
 
 #endif

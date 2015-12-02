@@ -10,5 +10,7 @@ Point createPoint(float x, float y, float z);
 Point createPointFromStr(char *str);
 Point createPointWithName(float x, float y, float z, char *name);
 
+void resetPoint(Point *point);
+
 #endif
 

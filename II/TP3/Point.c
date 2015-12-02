@@ -13,6 +13,7 @@ Point createPointFromStr(char *str) {
 
     return createPoint(x, y, z);
 }
+
 Point createPoint(float x, float y, float z) {
     Point point;
 
@@ -22,11 +23,10 @@ Point createPoint(float x, float y, float z) {
 
     return point;
 }
-Point createPointWithName(float x, float y, float z, char *name) {
-    Point point = createPoint(x, y, z);
 
-    point.name = malloc(strlen(name) + 1 * sizeof(char));
-    strcpy(point.name, name);
-
-    return point;
+//used in getPointsInsideBox
+void resetPoint(Point *point) {
+    point->x = 0;
+    point->y = 0;
+    point->z = 0;
 }

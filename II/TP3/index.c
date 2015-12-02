@@ -8,6 +8,7 @@
 #include "ReadData.h"
 
 char STOP_STR[2] = "-1";
+void readAllBinders(FILE *file);
 int stopReading(char *str, FILE *file);
 int strNull(char *str);
 FILE *defineFile(/*char *fileName*/);
@@ -43,7 +44,6 @@ THandler initHandler(float edge) {
     handler.edge = edge;
     handler.octree = malloc(sizeof(Octree));
     handler.octree->isLeaf = 1;
-    handler.octree->hasData = 0;
     //handler->binderNames = malloc(MAX_BINDERS * sizeof(char*));
 
     return handler;
@@ -52,32 +52,39 @@ THandler initHandler(float edge) {
 
 void readAllBinders(FILE *file) {
     char *str;
-    Point *binderPoint;
+    int sum;
+    Point binder;
+    Point pmin, pmax;
+    Point origin, halfDimension;
+
     do {
         str = readLineFrom(file);
+
         if(strIsBinderName(str)) {
-
             freeOctree(Handler.octree);
-            Handler.octree = malloc(sizeof(Octree));
-            Handler.octree->isLeaf = 1;
-            Handler.octree->hasData = 0;
-            //getch();
 
             str = readLineFrom(file);
-            Handler.octree->minPoint = createPointFromStr(str);
+            pmin = createPointFromStr(str);
             str = readLineFrom(file);
-            Handler.octree->maxPoint = createPointFromStr(str);
+            pmax = createPointFromStr(str);
 
+            origin = calculateOrigin(pmax, pmin);
+            halfDimension = calculateHalfDimension(origin, pmax);
+
+            createOctree(&Handler.octree, origin, halfDimension);
+
+            sum = 0;
         }
         else if(!strNull(str)) {
             if(strIsMoleculePoint(str)) {
                 addMoleculePoint(Handler.octree, str);
-               // printf("\n addm \n");
             }
             else if(strIsBinderPoint(str)) {
-                //addBinderPoint(binder, str);
+                binder = createPointFromStr(str);
 
-                // compare with octree and update actual Binder
+                getPointsInsideBox(binder, Handler.octree, Handler.edge, &sum);
+
+                printf("\n sum: %d", sum);
             }
         }
     } while(!stopReading(str, file));

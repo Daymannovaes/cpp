@@ -7,7 +7,7 @@ char *readLineFrom(FILE *file);
 int strIsBinderName(char *str);
 int strIsBinderPoint(char *str);
 int strIsMoleculePoint(char *str);
-// ---- parse functions
+
 float defineEdge(FILE *file);
 
 #endif

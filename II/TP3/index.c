@@ -60,9 +60,11 @@ void readAllBinders(FILE *file) {
     Point binderPoint, proteinPoint;
     Point pmin, pmax;
     Point origin, halfDimension;
+
     do {
         str = readLineFrom(file);
 
+    // ---- initial configurations
         if(strIsBinderName(str)) {
         // ---- handling BINDER
             if(binderStength != 0) {
@@ -85,6 +87,7 @@ void readAllBinders(FILE *file) {
             createOctree(&Handler.octree, origin, halfDimension);
 
         }
+    // ---- processing POINTS
         else if(!strNull(str)) {
             if(strIsProteinPoint(str)) {
                 proteinPoint = createPointFromInputLine(str);

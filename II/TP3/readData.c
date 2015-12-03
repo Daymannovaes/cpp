@@ -27,6 +27,6 @@ int strIsBinderName(char *str) {
 int strIsBinderPoint(char *str) {
     return str != NULL && strstr(str, "LIGANTE ") != NULL;
 }
-int strIsMoleculePoint(char *str) {
+int strIsProteinPoint(char *str) {
     return str != NULL && strstr(str, "PROTEINA ") != NULL;
 }

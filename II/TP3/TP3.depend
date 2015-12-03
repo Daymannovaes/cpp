@@ -1,13 +1,12 @@
 # depslib dependency file v1.0
-1448227909 source:d:\documentos\aeds\ii\tp3\binder.c
+1449104042 source:d:\documentos\aeds\ii\tp3\binder.c
 	<string.h>
 	<stdio.h>
 	<stdlib.h>
 	"Point.h"
 	"Binder.h"
 
-1448226459 d:\documentos\aeds\ii\tp3\binder.h
-	"Point.h"
+1449100583 d:\documentos\aeds\ii\tp3\binder.h
 
 1448227724 source:d:\documentos\aeds\ii\tp3\molecule.c
 	<stdio.h>
@@ -17,18 +16,19 @@
 1448226412 d:\documentos\aeds\ii\tp3\molecule.h
 	"Point.h"
 
-1449023708 source:d:\documentos\aeds\ii\tp3\readdata.c
+1449100419 source:d:\documentos\aeds\ii\tp3\readdata.c
 	<stdio.h>
 	<string.h>
 	"ReadData.h"
 
-1449094740 d:\documentos\aeds\ii\tp3\readdata.h
+1449100448 d:\documentos\aeds\ii\tp3\readdata.h
 
-1449099612 source:d:\documentos\aeds\ii\tp3\index.c
+1449105082 source:d:\documentos\aeds\ii\tp3\index.c
 	<stdio.h>
 	<stdlib.h>
 	<string.h>
 	"Point.h"
+	"Binder.h"
 	"Octree.h"
 	"ReadData.h"
 
@@ -40,9 +40,9 @@
 	<stdlib.h>
 	"Point.h"
 
-1449099505 d:\documentos\aeds\ii\tp3\octree.h
+1449100138 d:\documentos\aeds\ii\tp3\octree.h
 
-1449099626 source:d:\documentos\aeds\ii\tp3\octree.c
+1449100139 source:d:\documentos\aeds\ii\tp3\octree.c
 	<stdio.h>
 	<stdlib.h>
 	<string.h>

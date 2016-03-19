@@ -16,7 +16,7 @@ int main() {
     float count;
     // FILE *file = fopen("input.txt", "r");;
     FILE *file = stdin;
-    
+
     while(!feof(file)) {
         count = readAndCalculate(file);
         
@@ -28,11 +28,11 @@ int main() {
 
 void printByCount(int count) {
     if(count <= 3)
-        printf("250 ");
+        printf("250\n");
     else if(count <= 5)
-        printf("500 ");
+        printf("500\n");
     else
-        printf("1000    ");
+        printf("1000\n");
 }
 
 float readAndCalculate(FILE *file) {

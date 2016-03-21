@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+
 int stopReading(int, int);
 void readMusic(int, char**);
 void flatToSharp(char*);
@@ -13,6 +14,8 @@ char isPlagiarism(int, char**, int, char**);
 char *notes[12] = {"A", "A#", "B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#"};
 
 int main() {
+    //setbuf(stdout, NULL);
+    
     int M, T;
     char **song;
     char **snip;
@@ -23,7 +26,7 @@ int main() {
         readMusic(M, song);
         readMusic(T, snip);
 
-        printf("%c\n", isPlagiarism(M, song, T, snip));
+        printf("%s\n", isPlagiarism(M, song, T, snip));
     }
 
     return 0;
@@ -76,9 +79,21 @@ void stepUpKeyNote(char *note) {
 }
 
 char isPlagiarism(int M, char **song, int T, char **snip) {
-    int i;
+    int i, offset;
 
-    for(i=0; i<12; i++) {
-        if()
+
+    offset = 0;
+
+    for(i=0; i<M; i++) {
+        printf("%s == %s ? \n", song[i], snip[offset]);
+        if(strcmp(song[i], snip[offset]) == 0)
+            offset++;
+        else
+            offset = 0;
+
+        if(offset == T)
+            return 1;
     }
+
+    return 0;
 }

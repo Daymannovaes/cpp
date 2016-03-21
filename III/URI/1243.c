@@ -1,10 +1,10 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 
 void printByCount(int);
-float readAndCalculate(FILE*);
-float calculate(char*);
+int readAndCalculate(char*, FILE*);
+int calculate(char*);
 
 void removeNewLine(char*);
 
@@ -13,16 +13,17 @@ int wordlen(char*);
 
 int main() {
  
-    float count;
-    // FILE *file = fopen("input.txt", "r");;
+    int count;
+    char str[64];
+    //FILE *file = fopen("input.txt", "r");;
     FILE *file = stdin;
 
-    while(!feof(file)) {
-        count = readAndCalculate(file);
+    while(gets(str)) {
+        count = readAndCalculate(str, file);
         
-        printByCount(count);
+        printByCount(count);    
     }
-    
+
     return 0;
 }
 
@@ -35,20 +36,18 @@ void printByCount(int count) {
         printf("1000\n");
 }
 
-float readAndCalculate(FILE *file) {
-    char str[64];
-    fgets(str, sizeof(str), file);
+int readAndCalculate(char *str, FILE *file) {
     removeNewLine(str);
     
     return calculate(str);
 }
 
-float calculate(char *str) {
+int calculate(char *str) {
     char word[64];
     char *start, *end;
 
-    float wordCount = 0;
-    float wordLenght = 0;
+    int wordCount = 0;
+    int wordLenght = 0;
     
     end = str-1;
     while(end != NULL) {

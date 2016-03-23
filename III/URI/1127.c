@@ -14,7 +14,7 @@ char *notes[12] = {"A",  "A#", "B", "C",  "C#", "D",
                    "D#", "E",  "F", "F#", "G",  "G#"};
 
 int main() {
-  // setbuf(stdout, NULL);
+  setbuf(stdout, NULL);
 
   // M is the length of the music
   // T is the length of the snippet
@@ -82,24 +82,32 @@ void stepUpKeyNote(char *note) {
 }
 
 char isPlagiarism(int M, char **song, int T, char **snip) {
-  int i, j, offset;
-
-  offset = 0;
+  int i, j;
+  int offset, reset;
 
   // 'j' is to test in every key
   for(j = 0; j < 12; j++) {
     for (i = 0; i < M; i++) {
-      if (strcmp(song[i], snip[offset]) == 0)
-        offset++;
-      else {
-        offset = resetOffset(M, song, T, snip, i, offset);
+      reset = 0;
+      offset = 0;
+      
+      while(!reset) {
+        if(strcmp(song[i + offset], snip[offset]) == 0)
+          offset++;
+        else {
+          reset = 1;
+        }
+
+        if(offset == T) return 'S';
+        if(i+T >= M) {
+          break;
+        }
       }
 
       if (offset == T)
         return 'S';
     }
 
-    offset = 0;
     stepUpKeyMusic(T, snip);
   }
 

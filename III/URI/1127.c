@@ -44,10 +44,10 @@ int main() {
     readMusic(T, &snip);
 
     if(T == 1)
-      printf('N');
+      printf("%c\n", 'N');
     else
       printf("%c\n", isPlagiarism(M-1, song, T-1, snip));
-
+    
     scanf("%d %d", &M, &T);
   } while (!stopReading(M, T));
 

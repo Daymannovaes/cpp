@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #define ASIZE 257
+#define MAXCHAR 257
 
 int stopReading(int, int);
 void readMusic(int, int **);
@@ -11,25 +12,33 @@ int calculateDist(char *, char *);
 
 char isPlagiarism(int, int *, int, int *);
 
-/*0 1 2 3 4 5 6 7 8 9 10 11 12 13
-D G A B C D G G G C D  E  F# G C C
-C  D G G
-10 0 5 5
-G G C D*/
+// 0 1 2 3 4 5 6 7 8 9 10 11 12 13
+// D G A B C D G G G C D  E  F# G C C
+// C  D G G
+// 10 0 5 5
+// G G C D
 
 
 
 char *notes[12] = {"A",  "A#", "B", "C",  "C#", "D",
                    "D#", "E",  "F", "F#", "G",  "G#"};
+// 0 1 2 3 4 5 6
+// 0 2 3 5 7 8 10
+//   0 2 4 5 7
 
 void BMHPreprocess(int *snip, int T, int shiftTable[]) {
-  int i;
+  int i, s;
+  // printf("\nst\n");
   for (i = 0; i <= ASIZE; i++) {
-    shiftTable[i] = T;
+    shiftTable[i] = 1;
   }
   for (i = 1; i < T; i++) {
-    shiftTable[snip[i-1]] = T - i;
+    s = T - i;
+    shiftTable[snip[i]] = s <= 0 ? 1 : s;
+    // printf("[%d] = %d ", snip[i], shiftTable[snip[i]]);
   }
+
+  // printf("\nst\n");
 }
 
 char BMH(int *snip, int T, int *music, int M) {
@@ -42,14 +51,15 @@ char BMH(int *snip, int T, int *music, int M) {
     k = i;
     j = T;
 
-    // printf("\nf[%d](%d) == [%d](%d)", k-1, music[k-1], j-1, (snip[j-1] + music[k-1 - (j-1)])%12);
+      // printf("\nf[%d](%d) == [%d](%d)", k-1, music[k-1], j-1, (snip[j-1] + music[k-1 - (j-1)])%12);
     while ((music[k-1] == (snip[j-1] + music[k-1 - (j-1)])%12 || mod(music[k-1] - (snip[j-1] + music[k-1 - (j-1)])%12) == 12) && j > 0) {
-    // printf("\nd[%d](%d) == [%d](%d)", k-1, music[k-1], j-1, (snip[j-1] + music[k-1 - (j-1)])%12);
+      // printf("\nd[%d](%d) == [%d](%d)", k-1, music[k-1], j-1, (snip[j-1] + music[k-1 - (j-1)])%12);
       k--; j--;
-    // printf("\nd[%d](%d) == [%d](%d)", k-1, music[k-1], j-1, (snip[j-1] + music[k-1 - (j-1)])%12);
+      // printf("\nd[%d](%d) == [%d](%d)", k-1, music[k-1], j-1, (snip[j-1] + music[k-1 - (j-1)])%12);
     }
     if (j == 0) return 'S';
-
+    
+    // printf("\nst i-1=%d [%d] = %d\n", i-1, music[i-1], shiftTable[music[i-1]]);
     i += shiftTable[music[i-1]];
   }
   
@@ -60,8 +70,35 @@ int mod(int n) {
   return n < 0 ? -n : n;
 }
 
+void BMH2(char *T, long n, char *P, long m)
+{ long i, j, k, d[MAXCHAR + 1];
+  for (j = 0; j <= MAXCHAR; j++) { d[j] = m; }
+  for (j = 1; j < m; j++) { d[P[j-1]] = m - j; printf("\n\nJ = %d\nP[j-1] = %d(%c)\nd[P[j-1]] = %d", j, P[j-1], P[j-1], m-j); }
+  i = m;
+  while (i <= n)    /*-- Pesquisa --*/
+    { k = i;
+      j = m;
+      while (T[k-1] == P[j-1] && j > 0) { k--; j--; }
+      if (j == 0) 
+      printf("Casamento na posicao: %3ld\n", k);
+      i += d[T[i-1]];
+    }
+}
+
+
+
 int main() {
   setbuf(stdout, NULL);
+
+  while(1) {
+    char a[64], b[64];
+    gets(a);
+    gets(b);
+
+    BMH2(a, strlen(a), b, strlen(b));
+  }
+
+  return 0;
 
   // M is the length of the music
   // T is the length of the snippet

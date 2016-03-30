@@ -1,17 +1,33 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#define SIZE 12
 
 int stopReading(int, int);
-void readMusic(int, char ***);
+void readMusic(int, int **);
 void flatToSharp(char *);
 
-void stepUpKeyMusic(int, char **);
-void stepUpKeyNote(char *);
-char isPlagiarism(int, char **, int, char **);
+int indexOf(char *);
 
-char *notes[12] = {"A",  "A#", "B", "C",  "C#", "D",
-                   "D#", "E",  "F", "F#", "G",  "G#"};
+char isPlagiarism(int, int *, int, int *);
+int calculateDist(int, int);
+
+int shift[SIZE];
+void calculateShifts(int, int *, int, int *);
+int shiftOf(int);
+
+                //  0     1     2    3     4     5    6     7     8    9    10     11
+char *notes[12] = {"A",  "A#", "B", "C",  "C#", "D", "D#", "E",  "F", "F#", "G",  "G#"};
+
+// D G  A B C D G  G  G  C D E F# G C C
+// 5 10 0 2 3 5 10 10 10 3 5 7 9 10 3 3
+
+// 5 10 0 2 3  5 10 10 10 3 5 7 9 10 3 3
+// 5 2  2 1 2  5 0  0   5 2 2 2 1 5  0 -
+
+// G  G  C D
+// 10 10 3 5
+// 0  5  2 -
 
 int main() {
   setbuf(stdout, NULL);
@@ -20,14 +36,18 @@ int main() {
   // T is the length of the snippet
   int M = 0, T = 0;
 
-  char **song = NULL, **snip = NULL;
+  int *song = NULL, *snip = NULL;
   scanf("%d %d", &M, &T);
 
   do {
     readMusic(M, &song);
     readMusic(T, &snip);
 
-    printf("%c\n", isPlagiarism(M, song, T, snip));
+    if(T == 1)
+      printf('N');
+    else
+      printf("%c\n", isPlagiarism(M-1, song, T-1, snip));
+
     scanf("%d %d", &M, &T);
   } while (!stopReading(M, T));
 
@@ -36,15 +56,23 @@ int main() {
 
 int stopReading(int M, int T) { return M == 0 && T == 0; }
 
-void readMusic(int len, char ***music) {
+void readMusic(int len, int **music) {
   int i;
-
-  (*music) = malloc(len * sizeof(char *));
+  char note[3];
+  (*music) = malloc(len * sizeof(int));
   for (i = 0; i < len; i++) {
-    (*music)[i] = malloc(3 * sizeof(char)); // max of 2 chars + \0
+    scanf("%s", note);
 
-    scanf("%s", (*music)[i]);
-    flatToSharp((*music)[i]); // ensure there is no flat format
+    if(note[1] == 'b')
+      flatToSharp(note); // ensure there is no flat format, like Bb
+
+    // printf("indexOf(%s) = %d\n", note, indexOf(note));
+    (*music)[i] = indexOf(note);
+
+    if(i > 0) {
+      (*music)[i-1] = calculateDist((*music)[i], (*music)[i-1]);
+      // printf("[%d]=(%d) ", i-1, (*music)[i-1]);
+    }
   }
 }
 
@@ -61,77 +89,69 @@ void flatToSharp(char *note) {
   }
 }
 
-void stepUpKeyMusic(int len, char **music) {
+int indexOf(char *note) {
   int i;
-
-  for (i = 0; i < len; i++) {
-    stepUpKeyNote(music[i]);
-  }
-}
-
-void stepUpKeyNote(char *note) {
-  int i, index;
-
   for (i = 0; i < 12; i++) {
-    if (strcmp(note, notes[i]) == 0) {
-      index = i == 11 ? 0 : i + 1; // step up
-      strcpy(note, notes[index]);
-      return;
-    }
+    if(strcmp(notes[i], note) == 0)
+      return i;
   }
+
+  printf("\ncan't find indexOf %s\n", note);
+  return -1;
 }
 
-char isPlagiarism(int M, char **song, int T, char **snip) {
-  int i, j;
-  int offset, reset;
+char isPlagiarism(int M, int *song, int T, int *snip) {
+  int i, reset;
+  calculateShifts(M, song, T, snip); // pre proccess
 
-  // 'j' is to test in every key
-  for(j = 0; j < 12; j++) {
-    for (i = 0; i < M; i++) {
-      reset = 0;
-      offset = 0;
-      
-      while(!reset) {
-        if(strcmp(song[i + offset], snip[offset]) == 0)
-          offset++;
-        else {
-          reset = 1;
-        }
+  // shift moves the snip along the music, like a slide
+  int shift;
 
-        if(offset == T) return 'S';
-        if(i+T >= M) {
-          break;
-        }
-      }
+  // offset moves the pointer along the snip, while compare is matching
+  // FROM END TO BEGIN
+  int offset;
 
-      if (offset == T)
-        return 'S';
+  int dist; // distance from music to snip
+
+  i = T; // begin reading by the last char of the snip
+  while(i <= M) {
+    reset = 0;
+
+    shift = i;
+    offset = T;
+
+    // while dist remains the same, keep comparing
+    while(offset > 0 && song[shift-1] == snip[offset-1]) {
+      shift--; offset--;
     }
 
-    stepUpKeyMusic(T, snip);
+    if (offset == 0) return 'S';
+    
+    // The dist is different, let's shift to match the same notes
+    i += shiftOf(song[i-1]);
   }
 
   return 'N';
 }
 
-int resetOffset(int M, char **song, int T, char **snip, int end, int offset) {
-  if(offset == 0 || offset == 1)
-    return 0;
+int calculateDist(int a, int b) {
+  int dist = a - b;
+  dist = dist >= 0 ? dist : 12+dist;
 
+  // printf("\n||dist(%d, %d) = %d||\n", a, b, dist);
+  return dist;
+}
+
+void calculateShifts(int M, int *song, int T, int *snip) {
   int i;
-  int reset;
 
-  while(offset != 0) {
-    reset = 1;
+  // if the note doesn't exists in the snip, we'll shift the size of the snip
+  for(i=0; i<SIZE; i++) shift[i] = T;
 
-    for(i=0; i<offset; i++) {
-      if(strcmp(snip[i], song[end - offset + i]) != 0)
-        reset = 0;
-    }
+  // necessary shift to match next snip note with the given song note
+  for(i=1; i<T; i++) shift[snip[i-1]] = T - i;
+}
 
-    if(reset) return offset;
-    offset--;
-  }
-
-  return offset;
+int shiftOf(int i) {
+  return shift[i];
 }

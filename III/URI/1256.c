@@ -18,8 +18,8 @@ int main() {
     for(i=0; i<testCount; i++) {
         scanf("%d %d", &tableSize, &keysCount);
 
-        table = malloc(tableSize * sizeof(int*));
-        for(j=0; j<tableSize; j++) {
+        table = malloc(keysCount * sizeof(int*));
+        for(j=0; j<keysCount; j++) {
             table[j] = malloc(tableSize * sizeof(int));
 
             for(k=0; k<tableSize; k++) {
@@ -42,7 +42,7 @@ int main() {
             printf("%d -> ", j);
             indexI = 0;
 
-            while(table[indexI][j] != -1) {
+            while(indexI < keysCount && table[indexI][j] != -1) {
                 printf("%d -> ", table[indexI][j]);
                 indexI++;
             }

@@ -2,43 +2,16 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include <math.h>
+#include "structs.h"
+#include "constructors.h"
 
 #define MAX_BUFF 64
 #define READ_STR "%63s"
 
-typedef char Field[MAX_BUFF];		// field is a string
-typedef struct Record {
-	int key;
-	int count;				// number of fields in this record
-	Field *fields;			// each record has many fields
-} Record;
-typedef struct Pair {
-	int key;				// record key
-	int value;				// row number of the record;
-} Pair;
-
-typedef struct Page *PagePointer;
-
-typedef struct Page {
-	int isLeaf;
-
-	int count;				// number of keys in this page
-	Pair *data;				// array of keys/values
-	PagePointer *pointers;	// array of pages
-
-	PagePointer parent;		// parent page
-} Page;
-
-typedef struct Page Tree; 	// only an alias for the root page
-
-Record *create_record(int order);
-void *free_record(Record *record);
-
-void insert_field_in_record(Record *record, Field field);
-void insert(Page *root, Record *record);
 void read_line_from(FILE *file, char *str);
 void remove_new_line(char *str);
+void insert_field_in_record(Record *record, Field field);
+void insert(Page *root, Record *record);
 Tree *command_add(FILE *output, FILE *input, int order, int fieldCount, int keyNumber, Tree *tree, int recordCount);
 void print_record(Record *record);
 void print_page(Page *page);
@@ -51,11 +24,6 @@ Tree *split_and_insert_in_leaf(Tree *tree, Page *page, Pair *data, int order);
 Tree *insert_record_in_parent(Tree *tree, Page *left, Page *right, Pair *data, int order);
 void insert_record_in_internal(Page *page, Page *left, Page *right, Pair *data);
 Tree *split_and_insert_in_internal(Tree *tree, Page *page, Page *left, Page *right, Pair *data, int order);
-
-Page *create_page();
-Page *create_internal(int order);
-Page *create_leaf(int order);
-Pair *create_pair(int key, int value);
 
 int main(int argc, char const *argv[]) {
     setbuf(stdout, NULL);
@@ -93,19 +61,6 @@ int main(int argc, char const *argv[]) {
 	return 0;
 }
 
-Record *create_record(int order) {
-	Record *record;
-	record = malloc(sizeof(Record));
-
-	record->count = 0;
-	record->fields = malloc(order * sizeof(Field));
-
-	return record;
-}
-void *free_record(Record *record) {
-	free(record->fields);
-	free(record);
-}
 void insert_field_in_record(Record *record, Field field) {
 	strcpy(record->fields[record->count], field);
 	record->count++;
@@ -136,6 +91,7 @@ Tree *command_add(FILE *output, FILE *input, int order, int fieldCount, int keyN
 	}
 
 	insert_record_in_file(record, output);
+	free_record(record);
 	return insert_record_in_tree(tree, record->key, recordCount, order);
 }
 
@@ -379,41 +335,4 @@ Tree *insert_record_in_parent(Tree *tree, Page *left, Page *right, Pair *data, i
 	}
 
 	return tree;
-}
-
-Page *create_page() {
-	Page *page;
-	page = malloc(sizeof(Page));
-
-	page->count  = 0;
-	page->data = NULL;
-	page->pointers = NULL;
-	page->parent = NULL;
-
-	return page;
-}
-Page *create_leaf(int order) {
-	Page *page = create_page();
-	page->isLeaf = true;
-
-	page->data = malloc(order * sizeof(Pair));
-
-	return page;
-}
-Page *create_internal(int order) {
-	Page *page = create_leaf(order);
-	page->isLeaf = false;
-
-	page->pointers = malloc((order+1) * sizeof(PagePointer));
-
-	return page;
-}
-Pair *create_pair(int key, int value) {
-	Pair *pair;
-	pair = malloc(sizeof(Pair));
-
-	pair->key = key;
-	pair->value = value;
-
-	return pair;
 }

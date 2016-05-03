@@ -42,7 +42,7 @@ void remove_new_line(char *str);
 Tree *command_add(FILE *output, FILE *input, int order, int fieldCount, int keyNumber, Tree *tree, int recordCount);
 void print_record(Record *record);
 void print_page(Page *page);
-void print_tree(Tree *tree);
+void print_tree(Tree *tree, int printSelf);
 
 void insert_record_in_file(Record *record, FILE *file);
 Tree *insert_record_in_tree(Tree *tree, int key, int value, int order);
@@ -89,7 +89,7 @@ int main(int argc, char const *argv[]) {
 		}
 	}
 
-	print_tree(tree);
+	print_tree(tree, true);
 	return 0;
 }
 
@@ -151,15 +151,24 @@ void print_page(Page *page) {
 
 	// fprintf(file, "\n");
 }
-void print_tree(Tree *tree) {
-	printf("\nLevel 0: ");
-	print_page(tree);
-	printf("\n");
+void print_tree(Tree *tree, int printSelf) {
+	if(printSelf){
+		printf("\nlevel c(%d)", tree->count);
+		print_page(tree);
+		printf("\n");
+	}
 
 	int i;
-	for(i=0; i<tree->count+1; i++) {
-		print_page(tree->pointers[i]);
-		printf(" | ");
+	if(tree->pointers != NULL) {
+		for(i=0; i<tree->count+1; i++) {
+				print_page(tree->pointers[i]);
+			printf(" | ");
+		}
+		for(i=0; i<tree->count+1; i++) {
+			printf("\nsons of (%d|%d) \n", tree->pointers[i]->data[0].key, tree->pointers[i]->data[0].value);
+				print_tree(tree->pointers[i], false);
+			printf(" | ");
+		}
 	}
 }
 void insert_record_in_file(Record *record, FILE *file) {
@@ -191,6 +200,8 @@ Tree *insert_record_in_tree(Tree *tree, int key, int value, int order) {
 
 			page = page->pointers[index];
 		}
+
+		// printf("\n leaf to insert (%d) begin with: (%d|%d)", key, page->data[0].key, page->data[0].value);
 
 		if(page->count < order)
 			insert_record_in_leaf(tree, page, data, order);
@@ -226,7 +237,7 @@ void insert_record_in_internal(Page *page, Page *left, Page *right, Pair *data) 
 	while (index < page->count && page->data[index].key < data->key)
 		index++;
 
-	for (i = page->count; i > index; i--) {
+	for (i = page->count+1; i > index; i--) {
 		page->data[i] = page->data[i - 1];
 		page->pointers[i] = page->pointers[i - 1];
 	}
@@ -251,7 +262,7 @@ Tree *split_and_insert_in_leaf(Tree *tree, Page *left, Pair *data, int order) {
 	auxPairs = malloc((order+1) * sizeof(Pair));
 
 	index = 0;
-	while (index < order - 1 && left->data[index].key < data->key)
+	while (index < order && left->data[index].key < data->key)
 		index++;
 
 	for (i = 0, j = 0; i < left->count; i++, j++) {
@@ -263,7 +274,6 @@ Tree *split_and_insert_in_leaf(Tree *tree, Page *left, Pair *data, int order) {
 	auxPairs[index].value = data->value;
 
 	splitIndex = order%2 == 0 ? order/2 : order/2 + 1;
-
 
 	left->count = 0;
 	right = create_leaf(order);
@@ -289,7 +299,6 @@ Tree *split_and_insert_in_leaf(Tree *tree, Page *left, Pair *data, int order) {
 	return insert_record_in_parent(tree, left, right, data, order);
 }
 Tree *split_and_insert_in_internal(Tree *tree, Page *leftParent, Page *left, Page *right, Pair *data, int order) {
-	printf("\n split_and_insert_in_internal \n");
 	Page *rightParent;
 	Pair *auxPairs;
 	PagePointer *auxPointers;
@@ -299,21 +308,23 @@ Tree *split_and_insert_in_internal(Tree *tree, Page *leftParent, Page *left, Pag
 	auxPointers = malloc((order+2) * sizeof(PagePointer));
 
 	index = 0;
-	while (index < order - 1 && left->data[index].key < data->key)
+	while (index < order && leftParent->data[index].key < data->key)
 		index++;
 
-	for (i = 0, j = 0; i < left->count; i++, j++) {
+	for (i = 0, j = 0; i < leftParent->count; i++, j++) {
 		if (j == index) j++;
-		auxPointers[j] = left->pointers[i];
+		auxPointers[j] = leftParent->pointers[i];
 	}
-	for (i = 0, j = 0; i < left->count; i++, j++) {
+	for (i = 0, j = 0; i < leftParent->count; i++, j++) {
 		if (j == index) j++;
-		auxPairs[j].key = left->data[i].key;
-		auxPairs[j].value = left->data[i].value;
+		auxPairs[j].key = leftParent->data[i].key;
+		auxPairs[j].value = leftParent->data[i].value;
 	}
 
 	auxPairs[index].key = data->key;
 	auxPairs[index].value = data->value;
+
+
 	auxPointers[index] = left;
 	auxPointers[index+1] = right;
 
@@ -328,6 +339,7 @@ Tree *split_and_insert_in_internal(Tree *tree, Page *leftParent, Page *left, Pag
 		leftParent->pointers[i] = auxPointers[i];
 		leftParent->count++;
 	}
+	leftParent->pointers[splitIndex] = auxPointers[splitIndex];
 
 	for (i = splitIndex, j = 0; i < order+1; i++, j++) {
 		rightParent->data[j].key = auxPairs[i].key;
@@ -335,6 +347,7 @@ Tree *split_and_insert_in_internal(Tree *tree, Page *leftParent, Page *left, Pag
 		rightParent->pointers[j] = auxPointers[i];
 		rightParent->count++;
 	}
+	rightParent->pointers[j] = auxPointers[order+1];
 
 	free(auxPairs);
 	free(auxPointers);
@@ -354,9 +367,11 @@ Tree *insert_record_in_parent(Tree *tree, Page *left, Page *right, Pair *data, i
 	if(parent == NULL) {
 		parent = create_internal(order);
 		tree = parent;
+
+		left->parent = tree;
+		right->parent = tree;
 	}
 
-	printf("\n|%d|\n", parent->count);
 	if(parent->count < order)
 		insert_record_in_internal(parent, left, right, data);
 	else {

@@ -35,19 +35,21 @@ typedef struct Page Tree; 	// only an alias for the root page
 
 Record *create_record(int order);
 void *free_record(Record *record);
+void *free_tree(Tree *tree, Page *page);
+void create_page_file(int id, Page *page);
+void load_child(Page *page, int index, int order);
 
 void insert_field_in_record(Record *record, Field field);
-void insert(Page *root, Record *record);
 void read_line_from(FILE *file, char *str);
 void remove_new_line(char *str);
 Tree *command_add(FILE *output, FILE *input, int order, int fieldCount, int keyNumber, Tree *tree, int recordCount, int *pageCount);
 void print_record(Record *record);
 void print_page(Page *page);
-void print_tree(Tree *tree, int printSelf);
+void print_tree(Tree *tree, int printSelf, int order);
 
 void insert_record_in_file(Record *record, FILE *file);
 Tree *insert_record_in_tree(Tree *tree, int key, int value, int *pageCount, int order);
-void insert_record_in_leaf(Tree *tree, Page *page, Pair *data, int order);
+void insert_record_in_leaf(Tree *tree, Page *page, Pair *data, int id, int order);
 Tree *split_and_insert_in_leaf(Tree *tree, Page *page, Pair *data, int *pageCount, int order);
 Tree *insert_record_in_parent(Tree *tree, Page *left, Page *right, Pair *data, int *pageCount, int order);
 void insert_record_in_internal(Page *page, Page *left, Page *right, Pair *data, int *pageCount);
@@ -91,7 +93,7 @@ int main(int argc, char const *argv[]) {
 		}
 	}
 
-	print_tree(tree, true);
+	print_tree(tree, true, order);
 	return 0;
 }
 
@@ -107,6 +109,24 @@ Record *create_record(int order) {
 void *free_record(Record *record) {
 	free(record->fields);
 	free(record);
+}
+
+void *free_tree(Tree *tree, Page *page) {
+	int i;
+	if(!page->isLeaf) {
+		for(i=0; i<page->count+1; i++) {
+			free_tree(tree, page->pointers[i]);
+		}
+	}
+
+	if(page != tree) {
+		free(page->data);
+		if(!page->isLeaf) {
+			free(page->pointers);
+			free(page->ids);
+		}
+		free(page);
+	}
 }
 void insert_field_in_record(Record *record, Field field) {
 	strcpy(record->fields[record->count], field);
@@ -153,7 +173,7 @@ void print_page(Page *page) {
 
 	// fprintf(file, "\n");
 }
-void print_tree(Tree *tree, int printSelf) {
+void print_tree(Tree *tree, int printSelf, int order) {
 	if(printSelf){
 		printf("\nlevel c(%d)", tree->count);
 		print_page(tree);
@@ -163,12 +183,13 @@ void print_tree(Tree *tree, int printSelf) {
 	int i;
 	if(tree->pointers != NULL) {
 		for(i=0; i<tree->count+1; i++) {
+				load_child(tree, i, order);
 				print_page(tree->pointers[i]);
 			printf(" | ");
 		}
 		for(i=0; i<tree->count+1; i++) {
 			printf("\nsons of (%d|%d) \n", tree->pointers[i]->data[0].key, tree->pointers[i]->data[0].value);
-				print_tree(tree->pointers[i], false);
+				print_tree(tree->pointers[i], false, order);
 			printf(" | ");
 		}
 	}
@@ -188,7 +209,7 @@ Tree *insert_record_in_tree(Tree *tree, int key, int value, int *pageCount, int 
 
 	if(tree->isLeaf) {
 		if(tree->count < order)
-			insert_record_in_leaf(tree, tree, data, order);
+			insert_record_in_leaf(tree, tree, data, order, -1);
 		else
 			return split_and_insert_in_leaf(tree, tree, data, pageCount, order);
 	}
@@ -200,22 +221,22 @@ Tree *insert_record_in_tree(Tree *tree, int key, int value, int *pageCount, int 
 			while (index < page->count && page->data[index].key <= data->key)
 				index++;
 
+			load_child(page, index, order);
 			page = page->pointers[index];
 		}
 
-		// printf("\n leaf to insert (%d) begin with: (%d|%d)", key, page->data[0].key, page->data[0].value);
-
 		if(page->count < order)
-			insert_record_in_leaf(tree, page, data, order);
+			insert_record_in_leaf(tree, page, data, index, order);
 		else
 			return split_and_insert_in_leaf(tree, page, data, pageCount, order);
 	}
 
 	free(data);
+	free_tree(tree, tree);
 	return tree;
 }
 
-void insert_record_in_leaf(Tree *tree, Page *page, Pair *data, int order) {
+void insert_record_in_leaf(Tree *tree, Page *page, Pair *data, int id, int order) {
 	int i, index;
 
 	index = 0;
@@ -226,10 +247,77 @@ void insert_record_in_leaf(Tree *tree, Page *page, Pair *data, int order) {
 		page->data[i] = page->data[i - 1];
 	}
 
-	// printf("\ninserting (%d|%d) in %d", key, value, index);
 	page->data[index].key = data->key;
 	page->data[index].value = data->value;
 	page->count++;
+
+	if(page != tree) {
+		create_page_file(page->parent->ids[id], page);
+	}
+}
+
+void create_page_file(int id, Page *page) {
+	char fileName[3]; // max of 999
+	FILE *file;
+	int i;
+
+	sprintf(fileName, "%d", id);
+	file = fopen(fileName, "wb");
+
+	fprintf(file, "%d\n%d\n", page->isLeaf, page->count);
+
+	for (i = 0; i < page->count; i++) {
+		fprintf(file, "%d %d ", page->data[i].key, page->data[i].value);
+	}
+
+	if(!page->isLeaf) {
+		fprintf(file, "\n");
+		for (i = 0; i < page->count+1; i++) {
+			fprintf(file, "%d ", page->ids[i]);
+		}
+	}
+
+	fclose(file);
+}
+void load_child(Page *page, int index, int order) {
+	FILE *file;
+	char str[3];
+	int id = page->ids[index];
+
+	sprintf(str, "%d", id);
+	file = fopen(str, "rb");
+
+	Page *child;
+	int isLeaf, count;
+	
+	read_line_from(file, str);
+	isLeaf = atoi(str);
+
+	read_line_from(file, str);
+	count = atoi(str);
+
+	child = isLeaf ? create_leaf(order) : create_internal(order);
+	child->count = count;
+
+	int i, key, value;
+	for(i=0; i<child->count; i++) {
+		read_line_from(file, str); key = atoi(str);
+		read_line_from(file, str); value = atoi(str);
+
+		child->data[i].key = key;
+		child->data[i].value = value;
+	}
+	if(!child->isLeaf) {
+		for (i = 0; i < child->count+1; i++) {
+			read_line_from(file, str); id = atoi(str);
+			child->ids[i] = id;
+		}
+	}
+
+	page->pointers[index] = child;
+	child->parent = page;
+
+	fclose(file);
 }
 
 void insert_record_in_internal(Page *page, Page *left, Page *right, Pair *data, int *pageCount) {
@@ -246,10 +334,7 @@ void insert_record_in_internal(Page *page, Page *left, Page *right, Pair *data, 
 		if(i != index && i != index+1) {
 			page->pointers[i] = page->pointers[i - 1];
 			page->ids[i] = page->ids[i - 1];
-
-			sprintf(str, "%d", page->ids[i]);
-			file = fopen(str, "wb");
-			fprintf(file, "%d", 9);
+			create_page_file(page->ids[i], page->pointers[i]);
 		}
 	}
 
@@ -261,12 +346,8 @@ void insert_record_in_internal(Page *page, Page *left, Page *right, Pair *data, 
 	page->ids[index+1] = *pageCount;
 	(*pageCount)++;
 
-	sprintf(str, "%d", page->ids[index]);
-	file = fopen(str, "wb");
-	fprintf(file, "%d", 9);
-	sprintf(str, "%d", page->ids[index+1]);
-	file = fopen(str, "wb");
-	fprintf(file, "%d", 9);
+	create_page_file(page->ids[index], page->pointers[index]);
+	create_page_file(page->ids[index+1], page->pointers[index+1]);
 
 	page->data[index].key = data->key;
 	page->data[index].value = data->value;

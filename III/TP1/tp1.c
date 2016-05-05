@@ -33,9 +33,62 @@ typedef struct Page {
 
 typedef struct Page Tree; 	// only an alias for the root page
 
+// ---- fila
+
+
+typedef struct TipoCelula *TipoApontador;
+
+typedef Page* TipoChave;
+
+typedef struct TipoItem {
+  TipoChave Chave;
+  /* outros componentes */
+} TipoItem;
+
+typedef struct TipoCelula {
+  TipoItem Item;
+  TipoApontador Prox;
+} TipoCelula;
+
+typedef struct TipoFila {
+  TipoApontador Frente, Tras;
+} TipoFila;
+
+void FFVazia(TipoFila *Fila)
+{ Fila->Frente = (TipoApontador) malloc(sizeof(TipoCelula));
+  Fila->Tras = Fila->Frente;
+  Fila->Frente->Prox = NULL;
+} 
+
+int Vazia(TipoFila Fila)
+{ return (Fila.Frente == Fila.Tras); } 
+
+int filaCount;
+void Enfileira(TipoItem x, TipoFila *Fila)
+{ Fila->Tras->Prox = (TipoApontador) malloc(sizeof(TipoCelula));
+  Fila->Tras = Fila->Tras->Prox;
+  Fila->Tras->Item = x;
+  Fila->Tras->Prox = NULL;
+  filaCount++;
+} 
+
+void Desenfileira(TipoFila *Fila, TipoItem *Item)
+{ TipoApontador q;
+  if (Vazia(*Fila)) { printf("Erro fila esta vazia\n"); return; }
+  q = Fila->Frente;
+  Fila->Frente = Fila->Frente->Prox;
+  *Item = Fila->Frente->Item;
+  free(q);
+  filaCount--;
+} 
+
+TipoFila FILA;
+// ---- fila
+
+
 Record *create_record(int order);
-void *free_record(Record *record);
-void *free_tree(Tree *tree, Page *page);
+void free_record(Record *record);
+void free_tree(Tree *tree, Page *page);
 void create_page_file(int id, Page *page);
 void load_child(Page *page, int index, int order);
 
@@ -62,6 +115,9 @@ Pair *create_pair(int key, int value);
 
 int main(int argc, char const *argv[]) {
     setbuf(stdout, NULL);
+	FFVazia(&FILA);
+	filaCount = 0;
+
 	Tree *tree;
 
 	FILE *output, *input;
@@ -106,26 +162,18 @@ Record *create_record(int order) {
 
 	return record;
 }
-void *free_record(Record *record) {
+void free_record(Record *record) {
 	free(record->fields);
 	free(record);
 }
 
-void *free_tree(Tree *tree, Page *page) {
-	int i;
-	if(!page->isLeaf) {
-		for(i=0; i<page->count+1; i++) {
-			free_tree(tree, page->pointers[i]);
-		}
-	}
+void free_tree(Tree *tree, Page *page) {
+	while(!Vazia(FILA)) {
+		TipoItem item;
+		item = FILA.Frente->Prox->Item;
+		Desenfileira(&FILA, &item);
 
-	if(page != tree) {
-		free(page->data);
-		if(!page->isLeaf) {
-			free(page->pointers);
-			free(page->ids);
-		}
-		free(page);
+		free(item.Chave);
 	}
 }
 void insert_field_in_record(Record *record, Field field) {
@@ -193,6 +241,8 @@ void print_tree(Tree *tree, int printSelf, int order) {
 			printf(" | ");
 		}
 	}
+
+	if(printSelf) free_tree(tree, tree);
 }
 void insert_record_in_file(Record *record, FILE *file) {
 	fprintf(file, "%d", record->key);
@@ -207,11 +257,13 @@ void insert_record_in_file(Record *record, FILE *file) {
 Tree *insert_record_in_tree(Tree *tree, int key, int value, int *pageCount, int order) {
 	Pair *data = create_pair(key, value);
 
+
 	if(tree->isLeaf) {
 		if(tree->count < order)
 			insert_record_in_leaf(tree, tree, data, order, -1);
-		else
-			return split_and_insert_in_leaf(tree, tree, data, pageCount, order);
+		else {
+			tree = split_and_insert_in_leaf(tree, tree, data, pageCount, order);
+		}
 	}
 	else {
 		Page *page = tree;
@@ -224,11 +276,10 @@ Tree *insert_record_in_tree(Tree *tree, int key, int value, int *pageCount, int 
 			load_child(page, index, order);
 			page = page->pointers[index];
 		}
-
 		if(page->count < order)
 			insert_record_in_leaf(tree, page, data, index, order);
 		else
-			return split_and_insert_in_leaf(tree, page, data, pageCount, order);
+			tree = split_and_insert_in_leaf(tree, page, data, pageCount, order);
 	}
 
 	free(data);
@@ -314,8 +365,13 @@ void load_child(Page *page, int index, int order) {
 		}
 	}
 
+	if(page->pointers == NULL) page->pointers = malloc((order+1) * sizeof(PagePointer));
 	page->pointers[index] = child;
 	child->parent = page;
+
+  	TipoItem item;
+  	item.Chave = child;
+	Enfileira(item, &FILA);
 
 	fclose(file);
 }
@@ -364,7 +420,6 @@ Tree *split_and_insert_in_leaf(Tree *tree, Page *left, Pair *data, int *pageCoun
 	int index, splitIndex, i, j;
 
 	auxPairs = malloc((order+1) * sizeof(Pair));
-
 	index = 0;
 	while (index < order && left->data[index].key < data->key)
 		index++;
@@ -475,6 +530,13 @@ Tree *insert_record_in_parent(Tree *tree, Page *left, Page *right, Pair *data, i
 		left->parent = tree;
 		right->parent = tree;
 	}
+
+
+  	TipoItem item1, item2;
+  	item1.Chave = left;
+	Enfileira(item1, &FILA);
+  	item2.Chave = right;
+	Enfileira(item2, &FILA);
 
 	if(parent->count < order)
 		insert_record_in_internal(parent, left, right, data, pageCount);

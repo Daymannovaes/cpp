@@ -149,6 +149,10 @@ int main(int argc, char const *argv[]) {
 		}
 	}
 
+	int i;
+	for(i=0; i<tree->count+1; i++) {
+		printf("\n%d\n", tree->ids[i]);
+	}
 	print_tree(tree, true, order);
 	return 0;
 }
@@ -172,7 +176,6 @@ void free_tree(Tree *tree, Page *page) {
 		TipoItem item;
 		item = FILA.Frente->Prox->Item;
 		Desenfileira(&FILA, &item);
-
 		free(item.Chave);
 	}
 }
@@ -461,10 +464,12 @@ Tree *split_and_insert_in_internal(Tree *tree, Page *leftParent, Page *left, Pag
 	Page *rightParent;
 	Pair *auxPairs;
 	PagePointer *auxPointers;
+	int *auxIds;
 	int index, splitIndex, i, j;
 
 	auxPairs = malloc((order+1) * sizeof(Pair));
 	auxPointers = malloc((order+2) * sizeof(PagePointer));
+	auxIds = malloc((order+2) * sizeof(int));
 
 	index = 0;
 	while (index < order && leftParent->data[index].key < data->key)
@@ -479,13 +484,19 @@ Tree *split_and_insert_in_internal(Tree *tree, Page *leftParent, Page *left, Pag
 		auxPairs[j].key = leftParent->data[i].key;
 		auxPairs[j].value = leftParent->data[i].value;
 	}
+	for (i = 0, j = 0; i < leftParent->count; i++, j++) {
+		if (j == index) j++;
+		auxIds[i] = leftParent->ids[i];
+	}
 
 	auxPairs[index].key = data->key;
 	auxPairs[index].value = data->value;
 
-
 	auxPointers[index] = left;
 	auxPointers[index+1] = right;
+
+	auxIds[index] = *pageCount;
+	auxIds[index+1] = (*pageCount)+1;
 
 	splitIndex = order%2 == 0 ? order/2 : order/2 + 1;
 
@@ -496,6 +507,7 @@ Tree *split_and_insert_in_internal(Tree *tree, Page *leftParent, Page *left, Pag
 		leftParent->data[i].key = auxPairs[i].key;
 		leftParent->data[i].value = auxPairs[i].value;
 		leftParent->pointers[i] = auxPointers[i];
+		leftParent->ids[i] = auxIds[i];
 		leftParent->count++;
 	}
 	leftParent->pointers[splitIndex] = auxPointers[splitIndex];
@@ -504,6 +516,7 @@ Tree *split_and_insert_in_internal(Tree *tree, Page *leftParent, Page *left, Pag
 		rightParent->data[j].key = auxPairs[i].key;
 		rightParent->data[j].value = auxPairs[i].value;
 		rightParent->pointers[j] = auxPointers[i];
+		leftParent->ids[j] = auxIds[i];
 		rightParent->count++;
 	}
 	rightParent->pointers[j] = auxPointers[order+1];
@@ -529,14 +542,14 @@ Tree *insert_record_in_parent(Tree *tree, Page *left, Page *right, Pair *data, i
 
 		left->parent = tree;
 		right->parent = tree;
+
+	  	TipoItem item1, item2;
+	  	item1.Chave = left;
+		Enfileira(item1, &FILA);
+	  	item2.Chave = right;
+		Enfileira(item2, &FILA);
 	}
 
-
-  	TipoItem item1, item2;
-  	item1.Chave = left;
-	Enfileira(item1, &FILA);
-  	item2.Chave = right;
-	Enfileira(item2, &FILA);
 
 	if(parent->count < order)
 		insert_record_in_internal(parent, left, right, data, pageCount);

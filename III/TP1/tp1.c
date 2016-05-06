@@ -163,10 +163,15 @@ int main(int argc, char const *argv[]) {
 
 	int i;
 	char fileName[3];
-	for(i=0; i<pageCount; i++) {
-		sprintf(fileName, "%d", i);
-		remove(fileName);
+	for(i=0; i<tree->count+1; i++) {
+		printf(" %d ", tree->ids[i]);
 	}
+	print_tree(tree, true, order);
+	
+	// for(i=0; i<pageCount; i++) {
+	// 	sprintf(fileName, "%d", i);
+	// 	remove(fileName);
+	// }
 	return 0;
 }
 
@@ -239,7 +244,7 @@ void print_page(Page *page) {
 }
 void print_tree(Tree *tree, int printSelf, int order) {
 	if(printSelf){
-		printf("\nlevel c(%d)", tree->count);
+		printf("\n\nlevel c(%d)", tree->count);
 		print_page(tree);
 		printf("\n");
 	}
@@ -252,9 +257,11 @@ void print_tree(Tree *tree, int printSelf, int order) {
 			printf(" | ");
 		}
 		for(i=0; i<tree->count+1; i++) {
-			printf("\nsons of (%d|%d) \n", tree->pointers[i]->data[0].key, tree->pointers[i]->data[0].value);
+			if(!tree->pointers[i]->isLeaf) {
+				printf("\nsons of (%d|%d) \n", tree->pointers[i]->data[0].key, tree->pointers[i]->data[0].value);
 				print_tree(tree->pointers[i], false, order);
-			printf(" | ");
+				printf(" | ");
+			}
 		}
 	}
 
@@ -297,6 +304,8 @@ Tree *insert_record_in_tree(Tree *tree, int key, int value, int *pageCount, int 
 		else
 			tree = split_and_insert_in_leaf(tree, page, data, pageCount, order);
 	}
+
+	print_tree(tree, true, order);
 
 	free(data);
 	free_tree(tree, tree);

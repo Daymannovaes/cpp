@@ -116,6 +116,8 @@ Pair *create_pair(int key, int value);
 
 void search_and_print_in_file(FILE *output, FILE *input, FILE *record, int order, Tree *tree);
 void print_in_file(FILE *output, FILE *record, int row);
+void dump(Tree *tree, int order, FILE *output);
+void dump_page(Page *page, FILE *output);
 
 
 int main(int argc, char const *argv[]) {
@@ -144,13 +146,14 @@ int main(int argc, char const *argv[]) {
 	int pageCount = 0;
 
 	while(!feof(input)) {
+		strcpy(str, " ");
 		read_line_from(input, str);
 
 		if(strcmp(str, "add") == 0) {
 			record_w = fopen("records.txt", "a");
 			tree = command_add(record_w, input, order, fieldCount, keyNumber, tree, recordCount, &pageCount);
-			fclose(record_w);
 			recordCount++;
+			fclose(record_w);
 		}
 		if(strcmp(str, "search") == 0) {
 			record_r	= fopen("records.txt", "r");
@@ -158,20 +161,23 @@ int main(int argc, char const *argv[]) {
 			fclose(record_r);
 		}
 		if(strcmp(str, "dump") == 0) {
+			dump(tree, order, output);
 		}
 	}
 
 	int i;
 	char fileName[3];
-	for(i=0; i<tree->count+1; i++) {
-		printf(" %d ", tree->ids[i]);
-	}
-	print_tree(tree, true, order);
-	
-	// for(i=0; i<pageCount; i++) {
-	// 	sprintf(fileName, "%d", i);
-	// 	remove(fileName);
+	// for(i=0; i<tree->count+1; i++) {
+	// 	printf(" %d ", tree->ids[i]);
 	// }
+	// print_tree(tree, true, order);
+	
+	for(i=0; i<pageCount; i++) {
+		sprintf(fileName, "%d", i);
+		remove(fileName);
+	}
+
+	printf("end");
 	return 0;
 }
 
@@ -304,8 +310,6 @@ Tree *insert_record_in_tree(Tree *tree, int key, int value, int *pageCount, int 
 		else
 			tree = split_and_insert_in_leaf(tree, page, data, pageCount, order);
 	}
-
-	print_tree(tree, true, order);
 
 	free(data);
 	free_tree(tree, tree);
@@ -538,7 +542,7 @@ Tree *split_and_insert_in_internal(Tree *tree, Page *leftParent, Page *left, Pag
 	}
 	leftParent->pointers[splitIndex] = auxPointers[splitIndex];
 
-	for (i = splitIndex, j = 0; i < order+1; i++, j++) {
+	for (i = splitIndex+1, j = 0; i < order+1; i++, j++) {
 		rightParent->data[j].key = auxPairs[i].key;
 		rightParent->data[j].value = auxPairs[i].value;
 		rightParent->pointers[j] = auxPointers[i];
@@ -645,13 +649,14 @@ void search_and_print_in_file(FILE *output, FILE *input, FILE *record, int order
 	int index;
 	index = 0;
 	while(!page->isLeaf) {
-		while (index < page->count && page->data[index].key != key)
+		while (index < page->count && page->data[index].key <= key)
 			index++;
 
 		load_child(page, index, order);
 		page = page->pointers[index];
 	}
 
+	index = 0;
 	while (index < page->count && page->data[index].key != key)
 		index++;
 
@@ -660,6 +665,8 @@ void search_and_print_in_file(FILE *output, FILE *input, FILE *record, int order
 	else {
 		fprintf(output, "search\nnull\nsearch\n");
 	}
+
+	free_tree(tree, tree);
 }
 void print_in_file(FILE *output, FILE *record, int row) {
 	char str[MAX_BUFF * 2];
@@ -672,4 +679,37 @@ void print_in_file(FILE *output, FILE *record, int row) {
 
 	remove_new_line(str);
 	fprintf(output, "search\n%s\nsearch\n", str);
+}
+
+void dump(Tree *tree, int order, FILE *output) {
+	free_tree(tree, tree); // ensure
+	TipoItem item, n;
+	int i;
+  	item.Chave = tree;
+	Enfileira(item, &FILA);
+
+	fprintf(output, "dump\n");
+	while(!Vazia(FILA)) {
+		n = FILA.Frente->Prox->Item;
+		// printf("\nn\n");
+		// print_page(n.Chave);
+		// printf("\nn\n");
+
+		if(!n.Chave->isLeaf) {
+			for(i=0; i<n.Chave->count+1; i++) {
+				load_child(n.Chave, i, order); // load child already queue
+			}
+		}
+
+		dump_page(n.Chave, output);
+		Desenfileira(&FILA, &n);
+	}
+	fprintf(output, "dump\n");
+}
+void dump_page(Page *page, FILE *output) {
+	int i;
+	for(i=0; i<page->count; i++) {
+		fprintf(output, "%d,", page->data[i].key);
+	}
+	fprintf(output, "\n");
 }

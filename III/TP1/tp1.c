@@ -114,6 +114,10 @@ Page *create_internal(int order);
 Page *create_leaf(int order);
 Pair *create_pair(int key, int value);
 
+void search_and_print_in_file(FILE *output, FILE *input, FILE *record, int order, Tree *tree);
+void print_in_file(FILE *output, FILE *record, int row);
+
+
 int main(int argc, char const *argv[]) {
     setbuf(stdout, NULL);
 	FFVazia(&FILA);
@@ -121,10 +125,12 @@ int main(int argc, char const *argv[]) {
 
 	Tree *tree;
 
-	FILE *output, *input;
+	FILE *output, *input, *record_w, *record_r;
 	int order;
 	int fieldCount, keyNumber;
 
+	record_w = fopen("records.txt", "w"); // create file
+	fclose(record_w);
 	output 		= fopen(argv[1], "wb");
 	input  		= fopen(argv[2], "r");
 	order  		= atoi(argv[3]);
@@ -141,16 +147,26 @@ int main(int argc, char const *argv[]) {
 		read_line_from(input, str);
 
 		if(strcmp(str, "add") == 0) {
-			tree = command_add(output, input, order, fieldCount, keyNumber, tree, recordCount, &pageCount);
+			record_w = fopen("records.txt", "a");
+			tree = command_add(record_w, input, order, fieldCount, keyNumber, tree, recordCount, &pageCount);
+			fclose(record_w);
 			recordCount++;
 		}
 		if(strcmp(str, "search") == 0) {
+			record_r	= fopen("records.txt", "r");
+			search_and_print_in_file(output, input, record_r, order, tree);
+			fclose(record_r);
 		}
 		if(strcmp(str, "dump") == 0) {
 		}
 	}
 
-	print_tree(tree, true, order);
+	int i;
+	char fileName[3];
+	for(i=0; i<pageCount; i++) {
+		sprintf(fileName, "%d", i);
+		remove(fileName);
+	}
 	return 0;
 }
 
@@ -249,7 +265,7 @@ void insert_record_in_file(Record *record, FILE *file) {
 
 	int i;
 	for(i=0; i<record->count; i++) {
-		fprintf(file, " %s", record->fields[i]);
+		fprintf(file, "\t%s", record->fields[i]);
 	}
 
 	fprintf(file, "\n");
@@ -607,4 +623,44 @@ Pair *create_pair(int key, int value) {
 	pair->value = value;
 
 	return pair;
+}
+
+void search_and_print_in_file(FILE *output, FILE *input, FILE *record, int order, Tree *tree) {
+	int key;
+	char str[MAX_BUFF];
+
+	read_line_from(input, str);
+	key = atoi(str);
+
+	Page *page = tree;
+	int index;
+	index = 0;
+	while(!page->isLeaf) {
+		while (index < page->count && page->data[index].key != key)
+			index++;
+
+		load_child(page, index, order);
+		page = page->pointers[index];
+	}
+
+	while (index < page->count && page->data[index].key != key)
+		index++;
+
+	if(index < page->count)
+		return print_in_file(output, record, page->data[index].value);
+	else {
+		fprintf(output, "search\nnull\nsearch\n");
+	}
+}
+void print_in_file(FILE *output, FILE *record, int row) {
+	char str[MAX_BUFF * 2];
+
+	row++;
+	while(row) {
+		fgets(str, MAX_BUFF * 2, record);
+		row--;
+	}
+
+	remove_new_line(str);
+	fprintf(output, "search\n%s\nsearch\n", str);
 }

@@ -456,18 +456,12 @@ Tree *split_and_insert_in_leaf(Tree *tree, Page *left, Pair *data, int *pageCoun
 	Pair *auxPairs;
 	int index, splitIndex, i, j;
 
-	auxPairs = malloc((order+1) * sizeof(Pair));
-	index = 0;
-	while (index < order && left->data[index].key < data->key)
-		index++;
+	auxPairs = malloc((order) * sizeof(Pair));
 
 	for (i = 0, j = 0; i < left->count; i++, j++) {
-		if (j == index) j++;
 		auxPairs[j].key = left->data[i].key;
 		auxPairs[j].value = left->data[i].value;
 	}
-	auxPairs[index].key = data->key;
-	auxPairs[index].value = data->value;
 
 	splitIndex = order%2 == 0 ? order/2 : order/2 + 1;
 
@@ -480,14 +474,29 @@ Tree *split_and_insert_in_leaf(Tree *tree, Page *left, Pair *data, int *pageCoun
 		left->count++;
 	}
 
-	for (i = splitIndex, j = 0; i < order+1; i++, j++) {
+	for (i = splitIndex, j = 0; i < order; i++, j++) {
 		right->data[j].key = auxPairs[i].key;
 		right->data[j].value = auxPairs[i].value;
 		right->count++;
 	}
 
 	free(auxPairs);
+
 	right->parent = left->parent;
+
+	Page *child;
+	child = (data->key >= right->data[0].key) ? right : left;
+
+	index = 0;
+	while (index < child->count && child->data[index].key < data->key)
+		index++;
+
+	for (i = child->count; i > index; i--) {
+		child->data[i] = child->data[i - 1];
+	}
+	child->data[index].key = data->key;
+	child->data[index].value = data->value;
+	child->count++;
 
 	data->key = right->data[0].key;
 	data->value = right->data[0].value;

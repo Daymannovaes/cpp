@@ -150,10 +150,6 @@ int main(int argc, char const *argv[]) {
 		}
 	}
 
-	int i;
-	for(i=0; i<tree->count+1; i++) {
-		printf("\n%d\n", tree->ids[i]);
-	}
 	print_tree(tree, true, order);
 	return 0;
 }
@@ -493,14 +489,12 @@ Tree *split_and_insert_in_internal(Tree *tree, Page *leftParent, Page *left, Pag
 		auxPairs[j].key = leftParent->data[i].key;
 		auxPairs[j].value = leftParent->data[i].value;
 	}
-	for (i = 0, j = 0; i < leftParent->count; i++, j++) {
-		if (j == index) j++;
+	for (i = 0, j = 0; i < leftParent->count+1; i++, j++) {
 		auxIds[i] = leftParent->ids[i];
 	}
 
 	auxPairs[index].key = data->key;
 	auxPairs[index].value = data->value;
-
 
 	auxPointers[index] = left;
 	auxPointers[index+1] = right;
@@ -514,6 +508,7 @@ Tree *split_and_insert_in_internal(Tree *tree, Page *leftParent, Page *left, Pag
 		leftParent->data[i].key = auxPairs[i].key;
 		leftParent->data[i].value = auxPairs[i].value;
 		leftParent->pointers[i] = auxPointers[i];
+		leftParent->ids[i] = auxIds[i];
 		leftParent->count++;
 	}
 	leftParent->pointers[splitIndex] = auxPointers[splitIndex];
@@ -522,16 +517,26 @@ Tree *split_and_insert_in_internal(Tree *tree, Page *leftParent, Page *left, Pag
 		rightParent->data[j].key = auxPairs[i].key;
 		rightParent->data[j].value = auxPairs[i].value;
 		rightParent->pointers[j] = auxPointers[i];
+		rightParent->ids[j] = auxIds[i];
 		rightParent->count++;
 	}
 	rightParent->pointers[j] = auxPointers[order+1];
 
 	free(auxPairs);
 	free(auxPointers);
+	free(auxIds);
 	rightParent->parent = leftParent->parent;
 
 	data->key = rightParent->data[0].key;
 	data->value = rightParent->data[0].value;
+
+	if(right->id == -1) {
+		right->id = *pageCount;
+		(*pageCount)++;
+	}
+	rightParent->ids[j] = right->id;
+	create_page_file(left->id, left);
+	create_page_file(right->id, right);
 
 	return insert_record_in_parent(tree, leftParent, rightParent, data, pageCount, order);
 }

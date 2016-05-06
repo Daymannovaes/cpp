@@ -27,6 +27,7 @@ typedef struct Page {
 	Pair *data;				// array of keys/values
 	PagePointer *pointers;	// array of pages
 	int *ids;				// identifier of children files
+	int id;					// indentify self file
 
 	PagePointer parent;		// parent page
 } Page;
@@ -352,6 +353,7 @@ void load_child(Page *page, int index, int order) {
 
 	child = isLeaf ? create_leaf(order) : create_internal(order);
 	child->count = count;
+	child->id = id;
 
 	int i, key, value;
 	for(i=0; i<child->count; i++) {
@@ -400,10 +402,17 @@ void insert_record_in_internal(Page *page, Page *left, Page *right, Pair *data, 
 	page->pointers[index] = left;
 	page->pointers[index+1] = right;
 
-	page->ids[index] = *pageCount;
-	(*pageCount)++;
-	page->ids[index+1] = *pageCount;
-	(*pageCount)++;
+	if(left->id == -1) {
+		left->id = *pageCount;
+		(*pageCount)++;
+	}
+	if(right->id == -1) {
+		right->id = *pageCount;
+		(*pageCount)++;
+	}
+
+	page->ids[index] = left->id;
+	page->ids[index+1] = right->id;
 
 	create_page_file(page->ids[index], page->pointers[index]);
 	create_page_file(page->ids[index+1], page->pointers[index+1]);
@@ -492,11 +501,9 @@ Tree *split_and_insert_in_internal(Tree *tree, Page *leftParent, Page *left, Pag
 	auxPairs[index].key = data->key;
 	auxPairs[index].value = data->value;
 
+
 	auxPointers[index] = left;
 	auxPointers[index+1] = right;
-
-	auxIds[index] = *pageCount;
-	auxIds[index+1] = (*pageCount)+1;
 
 	splitIndex = order%2 == 0 ? order/2 : order/2 + 1;
 
@@ -507,7 +514,6 @@ Tree *split_and_insert_in_internal(Tree *tree, Page *leftParent, Page *left, Pag
 		leftParent->data[i].key = auxPairs[i].key;
 		leftParent->data[i].value = auxPairs[i].value;
 		leftParent->pointers[i] = auxPointers[i];
-		leftParent->ids[i] = auxIds[i];
 		leftParent->count++;
 	}
 	leftParent->pointers[splitIndex] = auxPointers[splitIndex];
@@ -516,7 +522,6 @@ Tree *split_and_insert_in_internal(Tree *tree, Page *leftParent, Page *left, Pag
 		rightParent->data[j].key = auxPairs[i].key;
 		rightParent->data[j].value = auxPairs[i].value;
 		rightParent->pointers[j] = auxPointers[i];
-		leftParent->ids[j] = auxIds[i];
 		rightParent->count++;
 	}
 	rightParent->pointers[j] = auxPointers[order+1];
@@ -565,6 +570,7 @@ Page *create_page() {
 	page = malloc(sizeof(Page));
 
 	page->count  = 0;
+	page->id = -1;
 	page->data = NULL;
 	page->pointers = NULL;
 	page->parent = NULL;

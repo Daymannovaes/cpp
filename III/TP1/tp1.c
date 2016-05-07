@@ -106,7 +106,7 @@ Tree *insert_record_in_tree(Tree *tree, int key, int value, int *pageCount, int 
 void insert_record_in_leaf(Tree *tree, Page *page, Pair *data, int id, int order);
 Tree *split_and_insert_in_leaf(Tree *tree, Page *page, Pair *data, int *pageCount, int order);
 Tree *insert_record_in_parent(Tree *tree, Page *left, Page *right, Pair *data, int *pageCount, int order);
-void insert_record_in_internal(Page *page, Page *left, Page *right, Pair *data, int *pageCount);
+void insert_record_in_internal(Page *page, Page *left, Page *right, Pair *data, int *pageCount, int order);
 Tree *split_and_insert_in_internal(Tree *tree, Page *leftParent, Page *left, Page *right, Pair *data, int *pageCount, int order);
 
 Page *create_page();
@@ -154,6 +154,10 @@ int main(int argc, char const *argv[]) {
 			tree = command_add(record_w, input, order, fieldCount, keyNumber, tree, recordCount, &pageCount);
 			recordCount++;
 			fclose(record_w);
+
+			printf("\n tree \n");
+			print_tree(tree, true, order);
+			printf("\n tree \n");
 		}
 		if(strcmp(str, "search") == 0) {
 			record_r	= fopen("records.txt", "r");
@@ -295,6 +299,65 @@ Tree *insert_record_in_tree(Tree *tree, int key, int value, int *pageCount, int 
 		}
 	}
 	else {
+		if(tree->count == order) {
+			Page *left, *right;
+
+			left = tree;
+
+			int splitIndex, i, j;
+			splitIndex = order%2 == 0 ? order/2 : order/2 + 1;
+
+			left->count = 0;
+			right = create_internal(order);
+			for (i = 0; i < splitIndex; i++) {
+				left->data[i].key = left->data[i].key;
+				left->data[i].value = left->data[i].value;
+				left->pointers[i] = left->pointers[i];
+				left->ids[i] = left->ids[i];
+				left->count++;
+			}
+			left->pointers[splitIndex] = left->pointers[splitIndex];
+
+			for (i = splitIndex+1, j = 0; i < order; i++, j++) {
+				right->data[j].key = left->data[i].key;
+				right->data[j].value = left->data[i].value;
+				right->pointers[j] = left->pointers[i];
+				right->ids[j] = left->ids[i];
+				right->count++;
+			}
+			right->pointers[j] = left->pointers[order+1];
+
+			tree = create_internal(order);
+
+			left->parent = tree;
+			right->parent = tree;
+
+			if(left->id == -1) {
+				left->id = *pageCount;
+				(*pageCount)++;
+			}
+			if(right->id == -1) {
+				right->id = *pageCount;
+				(*pageCount)++;
+			}
+
+			tree->count++;
+			tree->data[0].key = left->data[splitIndex].key;
+			tree->data[0].value = left->data[splitIndex].value;
+			tree->pointers[0] = left;
+			tree->pointers[1] = right;
+			tree->ids[0] = left->id;
+			tree->ids[1] = right->id;
+
+			create_page_file(left->id, left);
+			create_page_file(right->id, right);
+
+		  	TipoItem item1, item2;
+		  	item1.Chave = left;
+			Enfileira(item1, &FILA);
+		  	item2.Chave = right;
+			Enfileira(item2, &FILA);
+		}
 		Page *page = tree;
 		int index;
 		while(!page->isLeaf) {
@@ -406,7 +469,7 @@ void load_child(Page *page, int index, int order) {
 	fclose(file);
 }
 
-void insert_record_in_internal(Page *page, Page *left, Page *right, Pair *data, int *pageCount) {
+void insert_record_in_internal(Page *page, Page *left, Page *right, Pair *data, int *pageCount, int order) {
 	int i, index;
 	char str[2];
 	FILE *file;
@@ -420,6 +483,7 @@ void insert_record_in_internal(Page *page, Page *left, Page *right, Pair *data, 
 		if(i != index && i != index+1) {
 			page->pointers[i] = page->pointers[i - 1];
 			page->ids[i] = page->ids[i - 1];
+			load_child(page, i, order);
 			create_page_file(page->ids[i], page->pointers[i]);
 		}
 	}
@@ -600,7 +664,7 @@ Tree *insert_record_in_parent(Tree *tree, Page *left, Page *right, Pair *data, i
 
 
 	if(parent->count < order)
-		insert_record_in_internal(parent, left, right, data, pageCount);
+		insert_record_in_internal(parent, left, right, data, pageCount, order);
 	else {
 		return split_and_insert_in_internal(tree, parent, left, right, data, pageCount, order);
 	}

@@ -295,6 +295,7 @@ Tree *insert_record_in_tree(Tree *tree, int key, int value, int *pageCount, int 
 		}
 	}
 	else {
+		// split root page if it has the maximum count
 		if(tree->count == order) {
 			Page *left, *right;
 
@@ -710,8 +711,8 @@ void search_and_print_in_file(FILE *output, FILE *input, FILE *record, int order
 
 	Page *page = tree;
 	int index;
-	index = 0;
 	while(!page->isLeaf) {
+		index = 0;
 		while (index < page->count && page->data[index].key <= key)
 			index++;
 

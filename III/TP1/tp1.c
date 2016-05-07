@@ -299,65 +299,6 @@ Tree *insert_record_in_tree(Tree *tree, int key, int value, int *pageCount, int 
 		}
 	}
 	else {
-		if(tree->count == order) {
-			Page *left, *right;
-
-			left = tree;
-
-			int splitIndex, i, j;
-			splitIndex = order%2 == 0 ? order/2 : order/2 + 1;
-
-			left->count = 0;
-			right = create_internal(order);
-			for (i = 0; i < splitIndex; i++) {
-				left->data[i].key = left->data[i].key;
-				left->data[i].value = left->data[i].value;
-				left->pointers[i] = left->pointers[i];
-				left->ids[i] = left->ids[i];
-				left->count++;
-			}
-			left->pointers[splitIndex] = left->pointers[splitIndex];
-
-			for (i = splitIndex+1, j = 0; i < order; i++, j++) {
-				right->data[j].key = left->data[i].key;
-				right->data[j].value = left->data[i].value;
-				right->pointers[j] = left->pointers[i];
-				right->ids[j] = left->ids[i];
-				right->count++;
-			}
-			right->pointers[j] = left->pointers[order+1];
-
-			tree = create_internal(order);
-
-			left->parent = tree;
-			right->parent = tree;
-
-			if(left->id == -1) {
-				left->id = *pageCount;
-				(*pageCount)++;
-			}
-			if(right->id == -1) {
-				right->id = *pageCount;
-				(*pageCount)++;
-			}
-
-			tree->count++;
-			tree->data[0].key = left->data[splitIndex].key;
-			tree->data[0].value = left->data[splitIndex].value;
-			tree->pointers[0] = left;
-			tree->pointers[1] = right;
-			tree->ids[0] = left->id;
-			tree->ids[1] = right->id;
-
-			create_page_file(left->id, left);
-			create_page_file(right->id, right);
-
-		  	TipoItem item1, item2;
-		  	item1.Chave = left;
-			Enfileira(item1, &FILA);
-		  	item2.Chave = right;
-			Enfileira(item2, &FILA);
-		}
 		Page *page = tree;
 		int index;
 		while(!page->isLeaf) {

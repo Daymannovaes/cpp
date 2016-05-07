@@ -4,126 +4,61 @@
 #include <string.h>
 #include <math.h>
 
-#define MAX_BUFF 1024
-#define READ_STR "%63s"
+#include "record.h"
+#include "queue.h"
+#include "b_tree.h"
 
-typedef char Field[MAX_BUFF];		// field is a string
-typedef struct Record {
-	int key;
-	int count;				// number of fields in this record
-	Field *fields;			// each record has many fields
-} Record;
-typedef struct Pair {
-	int key;				// record key
-	int value;				// row number of the record;
-} Pair;
+#define READ_STR "%1023s"
 
-typedef struct Page *PagePointer;
-
-typedef struct Page {
-	int isLeaf;
-
-	int count;				// number of keys in this page
-	Pair *data;				// array of keys/values
-	PagePointer *pointers;	// array of pages
-	int *ids;				// identifier of children files
-	int id;					// indentify self file
-
-	PagePointer parent;		// parent page
-} Page;
-
-typedef struct Page Tree; 	// only an alias for the root page
-
-// ---- fila
-
-
-typedef struct TipoCelula *TipoApontador;
-
-typedef Page* TipoChave;
-
-typedef struct TipoItem {
-  TipoChave Chave;
-  /* outros componentes */
-} TipoItem;
-
-typedef struct TipoCelula {
-  TipoItem Item;
-  TipoApontador Prox;
-} TipoCelula;
-
-typedef struct TipoFila {
-  TipoApontador Frente, Tras;
-} TipoFila;
-
-void FFVazia(TipoFila *Fila)
-{ Fila->Frente = (TipoApontador) malloc(sizeof(TipoCelula));
-  Fila->Tras = Fila->Frente;
-  Fila->Frente->Prox = NULL;
-} 
-
-int Vazia(TipoFila Fila)
-{ return (Fila.Frente == Fila.Tras); } 
-
-int filaCount;
-void Enfileira(TipoItem x, TipoFila *Fila)
-{ Fila->Tras->Prox = (TipoApontador) malloc(sizeof(TipoCelula));
-  Fila->Tras = Fila->Tras->Prox;
-  Fila->Tras->Item = x;
-  Fila->Tras->Prox = NULL;
-  filaCount++;
-} 
-
-void Desenfileira(TipoFila *Fila, TipoItem *Item)
-{ TipoApontador q;
-  if (Vazia(*Fila)) { printf("Erro fila esta vazia\n"); return; }
-  q = Fila->Frente;
-  Fila->Frente = Fila->Frente->Prox;
-  *Item = Fila->Frente->Item;
-  free(q);
-  filaCount--;
-} 
-
-TipoFila FILA;
-// ---- fila
-
-
-Record *create_record(int order);
-void free_record(Record *record);
-void free_tree(Tree *tree, Page *page);
-void create_page_file(int id, Page *page);
-void load_child(Page *page, int index, int order);
-
-void insert_field_in_record(Record *record, Field field);
+// helper functions to read from file
 void read_line_from(FILE *file, char *str);
 void remove_new_line(char *str);
-Tree *command_add(FILE *output, FILE *input, int order, int fieldCount, int keyNumber, Tree *tree, int recordCount, int *pageCount);
-void print_record(Record *record);
+
+// ----- HELPER FUNCTIONS (used in development)
 void print_page(Page *page);
-void print_tree(Tree *tree, int printSelf, int order);
+void print_tree(Tree *tree, int printSelf, int order, Queue *queue);
+// ---------------------------------------- //
 
-void insert_record_in_file(Record *record, FILE *file);
-Tree *insert_record_in_tree(Tree *tree, int key, int value, int *pageCount, int order);
-void insert_record_in_leaf(Tree *tree, Page *page, Pair *data, int id, int order);
-Tree *split_and_insert_in_leaf(Tree *tree, Page *page, Pair *data, int *pageCount, int order);
-Tree *insert_record_in_parent(Tree *tree, Page *left, Page *right, Pair *data, int *pageCount, int order);
-void insert_record_in_internal(Page *page, Page *left, Page *right, Pair *data, int *pageCount, int order);
-Tree *split_and_insert_in_internal(Tree *tree, Page *leftParent, Page *left, Page *right, Pair *data, int *pageCount, int order);
 
+// ----- HIGH LEVEL COMMAND FUNCTIONS
+Tree *command_add(FILE *output, FILE *input, int order, int fieldCount, int keyNumber, Tree *tree, int recordCount, int *pageCount, Queue *queue);
+void command_search(FILE *output, FILE *input, FILE *record, int order, Tree *tree, Queue *queue);
+void command_dump(Tree *tree, int order, FILE *output, Queue *queue);
+void print_in_file(FILE *output, FILE *record, int row);
+void dump_page(Page *page, FILE *output);
+// ---------------------------------------- //
+
+
+// ----- FILE HANDLER FUNCTIONS
+void free_tree(Tree *tree, Page *page, Queue *queue);
+void create_page_file(int id, Page *page);
+void load_child(Page *page, int index, int order, Queue *queue);
+// ---------------------------------------- //
+
+
+// ----- CREATORS FUNCTIONS
 Page *create_page();
 Page *create_internal(int order);
 Page *create_leaf(int order);
 Pair *create_pair(int key, int value);
+// ---------------------------------------- //
 
-void search_and_print_in_file(FILE *output, FILE *input, FILE *record, int order, Tree *tree);
-void print_in_file(FILE *output, FILE *record, int row);
-void dump(Tree *tree, int order, FILE *output);
-void dump_page(Page *page, FILE *output);
+
+// ----- B+ TREE INSERTION FUNCTIONS
+Tree *insert_record_in_tree(Tree *tree, int key, int value, int *pageCount, int order, Queue *queue);
+void insert_record_in_leaf(Tree *tree, Page *page, Pair *data, int id, int order);
+Tree *split_and_insert_in_leaf(Tree *tree, Page *page, Pair *data, int *pageCount, int order, Queue *queue);
+Tree *insert_record_in_parent(Tree *tree, Page *left, Page *right, Pair *data, int *pageCount, int order, Queue *queue);
+void insert_record_in_internal(Page *page, Page *left, Page *right, Pair *data, int *pageCount, int order, Queue *queue);
+Tree *split_and_insert_in_internal(Tree *tree, Page *leftParent, Page *left, Page *right, Pair *data, int *pageCount, int order, Queue *queue);
+// ---------------------------------------- //
 
 
 int main(int argc, char const *argv[]) {
     setbuf(stdout, NULL);
-	FFVazia(&FILA);
-	filaCount = 0;
+
+	Queue queue;
+	init_queue(&queue);
 
 	Tree *tree;
 
@@ -133,6 +68,7 @@ int main(int argc, char const *argv[]) {
 
 	record_w = fopen("records.txt", "w"); // create file
 	fclose(record_w);
+
 	output 		= fopen(argv[1], "wb");
 	input  		= fopen(argv[2], "r");
 	order  		= atoi(argv[3]);
@@ -146,78 +82,55 @@ int main(int argc, char const *argv[]) {
 	int pageCount = 0;
 
 	while(!feof(input)) {
-		strcpy(str, " ");
+		strcpy(str, " ");				// ensure 'str' have the right command
 		read_line_from(input, str);
 
 		if(strcmp(str, "add") == 0) {
 			record_w = fopen("records.txt", "a");
-			tree = command_add(record_w, input, order, fieldCount, keyNumber, tree, recordCount, &pageCount);
-			recordCount++;
+			tree = command_add(record_w, input, order, fieldCount, keyNumber, tree, recordCount, &pageCount, &queue);
 			fclose(record_w);
+			recordCount++;
 		}
 		if(strcmp(str, "search") == 0) {
-			record_r	= fopen("records.txt", "r");
-			search_and_print_in_file(output, input, record_r, order, tree);
+			record_r = fopen("records.txt", "r");
+			command_search(output, input, record_r, order, tree, &queue);
 			fclose(record_r);
 		}
 		if(strcmp(str, "dump") == 0) {
-			dump(tree, order, output);
+			command_dump(tree, order, output, &queue);
 		}
 	}
 
 	int i;
 	char fileName[3];
-	// for(i=0; i<tree->count+1; i++) {
-	// 	printf(" %d ", tree->ids[i]);
-	// }
-	// print_tree(tree, true, order);
 	
+	// delete all temporary created files
 	for(i=0; i<pageCount; i++) {
 		sprintf(fileName, "%d", i);
 		remove(fileName);
 	}
 
-	// printf("end");
 	return 0;
 }
 
-Record *create_record(int order) {
-	Record *record;
-	record = malloc(sizeof(Record));
-
-	record->count = 0;
-	record->fields = malloc(order * sizeof(Field));
-
-	return record;
-}
-void free_record(Record *record) {
-	free(record->fields);
-	free(record);
-}
-
-void free_tree(Tree *tree, Page *page) {
-	while(!Vazia(FILA)) {
-		TipoItem item;
-		item = FILA.Frente->Prox->Item;
-		Desenfileira(&FILA, &item);
-		free(item.Chave);
+/**
+ * When a page is loaded from a file (external memory)
+ * this page is queued in the queue variable.
+ * This strategy was to simplify the free_tree algoritm.
+ * Instead of traverse all the Tree by the root, to start
+ * to free, we queue all the loaded pages, then
+ * free them sequentially
+ */
+void free_tree(Tree *tree, Page *page, Queue *queue) {
+	while(!is_queue_empty(*queue)) {
+		CellItem item;
+		item = queue->first->next->item;
+		undo_queue(queue, &item);
+		free(item.page);
 	}
 }
-void insert_field_in_record(Record *record, Field field) {
-	strcpy(record->fields[record->count], field);
-	record->count++;
-}
 
-void read_line_from(FILE *file, char *str) {
-    fscanf(file, READ_STR, str);
-    remove_new_line(str);
-}
-void remove_new_line(char *str) {
-    if (str != NULL && str[strlen(str) - 1] == '\n')
-        str[strlen(str) - 1] = '\0';
-}
-
-Tree *command_add(FILE *output, FILE *input, int order, int fieldCount, int keyNumber, Tree *tree, int recordCount, int *pageCount) {
+Tree *command_add(FILE *output, FILE *input, int order, int fieldCount, int keyNumber, Tree *tree, int recordCount, int *pageCount, Queue *queue) {
 	int i;
 
 	Record *record = create_record(fieldCount);
@@ -233,22 +146,17 @@ Tree *command_add(FILE *output, FILE *input, int order, int fieldCount, int keyN
 	}
 
 	insert_record_in_file(record, output);
-	return insert_record_in_tree(tree, record->key, recordCount, pageCount, order);
+	return insert_record_in_tree(tree, record->key, recordCount, pageCount, order, queue);
 }
 
-void print_record(Record *record) {
-	insert_record_in_file(record, stdout);
-}
 void print_page(Page *page) {
 	FILE *file = stdout;
 	int i;
 	for(i=0; i<page->count; i++) {
 		fprintf(file, "(%d|%d) ", page->data[i].key, page->data[i].value);
 	}
-
-	// fprintf(file, "\n");
 }
-void print_tree(Tree *tree, int printSelf, int order) {
+void print_tree(Tree *tree, int printSelf, int order, Queue *queue) {
 	if(printSelf){
 		printf("\n\nlevel c(%d)", tree->count);
 		print_page(tree);
@@ -258,32 +166,23 @@ void print_tree(Tree *tree, int printSelf, int order) {
 	int i;
 	if(tree->pointers != NULL) {
 		for(i=0; i<tree->count+1; i++) {
-				load_child(tree, i, order);
+				load_child(tree, i, order, queue);
 				print_page(tree->pointers[i]);
 			printf(" | ");
 		}
 		for(i=0; i<tree->count+1; i++) {
 			if(!tree->pointers[i]->isLeaf) {
 				printf("\nsons of (%d|%d) \n", tree->pointers[i]->data[0].key, tree->pointers[i]->data[0].value);
-				print_tree(tree->pointers[i], false, order);
+				print_tree(tree->pointers[i], false, order, queue);
 				printf(" | ");
 			}
 		}
 	}
 
-	if(printSelf) free_tree(tree, tree);
+	if(printSelf) free_tree(tree, tree, queue);
 }
-void insert_record_in_file(Record *record, FILE *file) {
-	fprintf(file, "%d", record->key);
 
-	int i;
-	for(i=0; i<record->count; i++) {
-		fprintf(file, "\t%s", record->fields[i]);
-	}
-
-	fprintf(file, "\n");
-}
-Tree *insert_record_in_tree(Tree *tree, int key, int value, int *pageCount, int order) {
+Tree *insert_record_in_tree(Tree *tree, int key, int value, int *pageCount, int order, Queue *queue) {
 	Pair *data = create_pair(key, value);
 
 
@@ -291,7 +190,7 @@ Tree *insert_record_in_tree(Tree *tree, int key, int value, int *pageCount, int 
 		if(tree->count < order)
 			insert_record_in_leaf(tree, tree, data, order, -1);
 		else {
-			tree = split_and_insert_in_leaf(tree, tree, data, pageCount, order);
+			tree = split_and_insert_in_leaf(tree, tree, data, pageCount, order, queue);
 		}
 	}
 	else {
@@ -342,11 +241,11 @@ Tree *insert_record_in_tree(Tree *tree, int key, int value, int *pageCount, int 
 			create_page_file(left->id, left);
 			create_page_file(right->id, right);
 
-		  	TipoItem item1, item2;
-		  	item1.Chave = left;
-			Enfileira(item1, &FILA);
-		  	item2.Chave = right;
-			Enfileira(item2, &FILA);
+		  	CellItem item1, item2;
+		  	item1.page = left;
+			do_queue(item1, queue);
+		  	item2.page = right;
+			do_queue(item2, queue);
 		}
 		Page *page = tree;
 		int index;
@@ -355,17 +254,17 @@ Tree *insert_record_in_tree(Tree *tree, int key, int value, int *pageCount, int 
 			while (index < page->count && page->data[index].key <= data->key)
 				index++;
 
-			load_child(page, index, order);
+			load_child(page, index, order, queue);
 			page = page->pointers[index];
 		}
 		if(page->count < order)
 			insert_record_in_leaf(tree, page, data, index, order);
 		else
-			tree = split_and_insert_in_leaf(tree, page, data, pageCount, order);
+			tree = split_and_insert_in_leaf(tree, page, data, pageCount, order, queue);
 	}
 
 	free(data);
-	free_tree(tree, tree);
+	free_tree(tree, tree, queue);
 	return tree;
 }
 
@@ -412,7 +311,7 @@ void create_page_file(int id, Page *page) {
 
 	fclose(file);
 }
-void load_child(Page *page, int index, int order) {
+void load_child(Page *page, int index, int order, Queue *queue) {
 	FILE *file;
 	char str[3];
 	int id = page->ids[index];
@@ -452,14 +351,14 @@ void load_child(Page *page, int index, int order) {
 	page->pointers[index] = child;
 	child->parent = page;
 
-  	TipoItem item;
-  	item.Chave = child;
-	Enfileira(item, &FILA);
+  	CellItem item;
+  	item.page = child;
+	do_queue(item, queue);
 
 	fclose(file);
 }
 
-void insert_record_in_internal(Page *page, Page *left, Page *right, Pair *data, int *pageCount, int order) {
+void insert_record_in_internal(Page *page, Page *left, Page *right, Pair *data, int *pageCount, int order, Queue *queue) {
 	int i, index;
 	char str[2];
 	FILE *file;
@@ -473,7 +372,7 @@ void insert_record_in_internal(Page *page, Page *left, Page *right, Pair *data, 
 		if(i != index && i != index+1) {
 			page->pointers[i] = page->pointers[i - 1];
 			page->ids[i] = page->ids[i - 1];
-			load_child(page, i, order);
+			load_child(page, i, order, queue);
 			create_page_file(page->ids[i], page->pointers[i]);
 		}
 	}
@@ -507,7 +406,7 @@ void insert_record_in_internal(Page *page, Page *left, Page *right, Pair *data, 
  * create two new pages from the *page, point this page
  * as parent 
  */
-Tree *split_and_insert_in_leaf(Tree *tree, Page *left, Pair *data, int *pageCount, int order) {
+Tree *split_and_insert_in_leaf(Tree *tree, Page *left, Pair *data, int *pageCount, int order, Queue *queue) {
 	Page *right;
 	Pair *auxPairs;
 	int index, splitIndex, i, j;
@@ -557,9 +456,9 @@ Tree *split_and_insert_in_leaf(Tree *tree, Page *left, Pair *data, int *pageCoun
 	data->key = right->data[0].key;
 	data->value = right->data[0].value;
 
-	return insert_record_in_parent(tree, left, right, data, pageCount, order);
+	return insert_record_in_parent(tree, left, right, data, pageCount, order, queue);
 }
-Tree *split_and_insert_in_internal(Tree *tree, Page *leftParent, Page *left, Page *right, Pair *data, int *pageCount, int order) {
+Tree *split_and_insert_in_internal(Tree *tree, Page *leftParent, Page *left, Page *right, Pair *data, int *pageCount, int order, Queue *queue) {
 	Page *rightParent;
 	Pair *auxPairs;
 	PagePointer *auxPointers;
@@ -632,10 +531,10 @@ Tree *split_and_insert_in_internal(Tree *tree, Page *leftParent, Page *left, Pag
 	create_page_file(left->id, left);
 	create_page_file(right->id, right);
 
-	return insert_record_in_parent(tree, leftParent, rightParent, data, pageCount, order);
+	return insert_record_in_parent(tree, leftParent, rightParent, data, pageCount, order, queue);
 }
 
-Tree *insert_record_in_parent(Tree *tree, Page *left, Page *right, Pair *data, int *pageCount, int order) {
+Tree *insert_record_in_parent(Tree *tree, Page *left, Page *right, Pair *data, int *pageCount, int order, Queue *queue) {
 	Page *parent = left->parent;
 	int index;
 
@@ -647,17 +546,17 @@ Tree *insert_record_in_parent(Tree *tree, Page *left, Page *right, Pair *data, i
 		left->parent = tree;
 		right->parent = tree;
 
-	  	TipoItem item1, item2;
-	  	item1.Chave = left;
-		Enfileira(item1, &FILA);
-	  	item2.Chave = right;
-		Enfileira(item2, &FILA);
+	  	CellItem item1, item2;
+	  	item1.page = left;
+		do_queue(item1, queue);
+	  	item2.page = right;
+		do_queue(item2, queue);
 	}
 
 	if(parent->count < order)
-		insert_record_in_internal(parent, left, right, data, pageCount, order);
+		insert_record_in_internal(parent, left, right, data, pageCount, order, queue);
 	else {
-		return split_and_insert_in_internal(tree, parent, left, right, data, pageCount, order);
+		return split_and_insert_in_internal(tree, parent, left, right, data, pageCount, order, queue);
 	}
 
 	return tree;
@@ -702,7 +601,7 @@ Pair *create_pair(int key, int value) {
 	return pair;
 }
 
-void search_and_print_in_file(FILE *output, FILE *input, FILE *record, int order, Tree *tree) {
+void command_search(FILE *output, FILE *input, FILE *record, int order, Tree *tree, Queue *queue) {
 	int key;
 	char str[MAX_BUFF];
 
@@ -716,7 +615,7 @@ void search_and_print_in_file(FILE *output, FILE *input, FILE *record, int order
 		while (index < page->count && page->data[index].key <= key)
 			index++;
 
-		load_child(page, index, order);
+		load_child(page, index, order, queue);
 		page = page->pointers[index];
 	}
 
@@ -730,8 +629,9 @@ void search_and_print_in_file(FILE *output, FILE *input, FILE *record, int order
 		fprintf(output, "search\nnull\nsearch\n");
 	}
 
-	free_tree(tree, tree);
+	free_tree(tree, tree, queue);
 }
+
 void print_in_file(FILE *output, FILE *record, int row) {
 	char str[MAX_BUFF * 2];
 
@@ -745,28 +645,25 @@ void print_in_file(FILE *output, FILE *record, int row) {
 	fprintf(output, "search\n%s\nsearch\n", str);
 }
 
-void dump(Tree *tree, int order, FILE *output) {
-	free_tree(tree, tree); // ensure
-	TipoItem item, n;
+void command_dump(Tree *tree, int order, FILE *output, Queue *queue) {
+	free_tree(tree, tree, queue); // ensure
+	CellItem item, n;
 	int i;
-  	item.Chave = tree;
-	Enfileira(item, &FILA);
+  	item.page = tree;
+	do_queue(item, queue);
 
 	fprintf(output, "dump\n");
-	while(!Vazia(FILA)) {
-		n = FILA.Frente->Prox->Item;
-		// printf("\nn\n");
-		// print_page(n.Chave);
-		// printf("\nn\n");
+	while(!is_queue_empty(*queue)) {
+		n = queue->first->next->item;
 
-		if(!n.Chave->isLeaf) {
-			for(i=0; i<n.Chave->count+1; i++) {
-				load_child(n.Chave, i, order); // load child already queue
+		if(!n.page->isLeaf) {
+			for(i=0; i<n.page->count+1; i++) {
+				load_child(n.page, i, order, queue); // load child already queue
 			}
 		}
 
-		dump_page(n.Chave, output);
-		Desenfileira(&FILA, &n);
+		dump_page(n.page, output);
+		undo_queue(queue, &n); // queued by 'load_child'
 	}
 	fprintf(output, "dump\n");
 }
@@ -776,4 +673,13 @@ void dump_page(Page *page, FILE *output) {
 		fprintf(output, "%d,", page->data[i].key);
 	}
 	fprintf(output, "\n");
+}
+
+void read_line_from(FILE *file, char *str) {
+    fscanf(file, READ_STR, str);
+    remove_new_line(str);
+}
+void remove_new_line(char *str) {
+    if (str != NULL && str[strlen(str) - 1] == '\n')
+        str[strlen(str) - 1] = '\0';
 }

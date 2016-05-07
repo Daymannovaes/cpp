@@ -2,5 +2,5 @@ CC = gcc
 CFLAGS = -g -O0
 OUTPUT = tp1.exe
 
-all: *.c
-	$(CC) $(CFLAGS) -o $(OUTPUT)
+all:
+	$(CC) $(CFLAGS) *.c -o $(OUTPUT)

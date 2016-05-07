@@ -4,7 +4,7 @@
 #include <string.h>
 #include <math.h>
 
-#define MAX_BUFF 64
+#define MAX_BUFF 1024
 #define READ_STR "%63s"
 
 typedef char Field[MAX_BUFF];		// field is a string
@@ -154,10 +154,6 @@ int main(int argc, char const *argv[]) {
 			tree = command_add(record_w, input, order, fieldCount, keyNumber, tree, recordCount, &pageCount);
 			recordCount++;
 			fclose(record_w);
-
-			printf("\n tree \n");
-			print_tree(tree, true, order);
-			printf("\n tree \n");
 		}
 		if(strcmp(str, "search") == 0) {
 			record_r	= fopen("records.txt", "r");
@@ -181,7 +177,7 @@ int main(int argc, char const *argv[]) {
 		remove(fileName);
 	}
 
-	printf("end");
+	// printf("end");
 	return 0;
 }
 
@@ -299,6 +295,58 @@ Tree *insert_record_in_tree(Tree *tree, int key, int value, int *pageCount, int 
 		}
 	}
 	else {
+		if(tree->count == order) {
+			Page *left, *right;
+
+			left = tree;
+
+			int splitIndex, i, j;
+			splitIndex = order%2 == 0 ? order/2 : order/2 + 1;
+
+			left->count = splitIndex;
+			right = create_internal(order);
+
+			for (i = splitIndex+1, j = 0; i < order; i++, j++) {
+				right->data[j].key = left->data[i].key;
+				right->data[j].value = left->data[i].value;
+				right->pointers[j] = left->pointers[i];
+				right->ids[j] = left->ids[i];
+				right->count++;
+			}
+			right->pointers[j] = left->pointers[i];
+			right->ids[j] = left->ids[i];
+
+			tree = create_internal(order);
+
+			left->parent = tree;
+			right->parent = tree;
+
+			if(left->id == -1) {
+				left->id = *pageCount;
+				(*pageCount)++;
+			}
+			if(right->id == -1) {
+				right->id = *pageCount;
+				(*pageCount)++;
+			}
+
+			tree->count++;
+			tree->data[0].key = left->data[splitIndex].key;
+			tree->data[0].value = left->data[splitIndex].value;
+			tree->pointers[0] = left;
+			tree->pointers[1] = right;
+			tree->ids[0] = left->id;
+			tree->ids[1] = right->id;
+
+			create_page_file(left->id, left);
+			create_page_file(right->id, right);
+
+		  	TipoItem item1, item2;
+		  	item1.Chave = left;
+			Enfileira(item1, &FILA);
+		  	item2.Chave = right;
+			Enfileira(item2, &FILA);
+		}
 		Page *page = tree;
 		int index;
 		while(!page->isLeaf) {
@@ -450,6 +498,8 @@ void insert_record_in_internal(Page *page, Page *left, Page *right, Pair *data, 
 	page->data[index].key = data->key;
 	page->data[index].value = data->value;
 	page->count++;
+
+	create_page_file(page->id, page);
 }
 
 /** 
@@ -602,7 +652,6 @@ Tree *insert_record_in_parent(Tree *tree, Page *left, Page *right, Pair *data, i
 	  	item2.Chave = right;
 		Enfileira(item2, &FILA);
 	}
-
 
 	if(parent->count < order)
 		insert_record_in_internal(parent, left, right, data, pageCount, order);

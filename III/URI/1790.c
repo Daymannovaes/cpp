@@ -1,124 +1,171 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #define MAX_CITIES 51
 
-typedef struct City *CityPointer;
+typedef struct Bridge {
+	int to;
+
+	int inCicle;					// was this bridge counted in cicle algoritm
+} Bridge;
+
 typedef struct City {
 	int id;
 	int count;						// how many conneted cities
 
-	int cities[MAX_CITIES];			// connected cities
+	Bridge bridges[MAX_CITIES];		// connected cities
+
+	int pos;						// used in search algoritm
 } City;
 
-typedef struct Cell *CellPointer;
+int cicle_bridges(City *initial, int pos);
+int _cicle_bridges(City *initial, City *parent, City city, int pos);
+void mark_bridge(int from, int to);
+void unmark_bridge(int from, int to);
 
-typedef struct CellItem {
-  City *city;
-} CellItem;
-
-typedef struct Cell {
-  CellItem item;
-  CellPointer next;
-} Cell;
-
-typedef struct Queue {
-  CellPointer first, last;
-} Queue;
-
-
-void init_queue(Queue *queue);
-int is_queue_empty(Queue queue);
-void do_queue(CellItem x, Queue *queue);
-void undo_queue(Queue *queue, CellItem *item);
-
+City cities[MAX_CITIES];
+int BRIDGE_CICLE;
 int main(int argc, char const *argv[]) {
-	Queue rank1_queue;
-	CellItem item;
-	City cities[MAX_CITIES];
+    setbuf(stdout, NULL);
+
 	int cityCount, bridgeCount;
 	int x, y;
-	int i;
+	int i, j;
 	
-	init_queue(&rank1_queue);
-	
-	for(i=0; i<MAX_CITIES; i++) {
-		cities[i].count = 0;
-	}
+	while(!feof(stdin)) {
+    	BRIDGE_CICLE = 0;
+		scanf("%d %d", &cityCount, &bridgeCount);
 
-	scanf("%d %d", &cityCount, &bridgeCount);
+		for(i=0; i<cityCount; i++) {
+			cities[i].count = 0;
+			cities[i].id = i;
+			cities[i].pos = 0;
 
-	i = bridgeCount;
-	while(i) {
-					cities[x-1].cities[cities[x-1].count] = y-1;
-		cities[x-1].id = x-1;
-		cities[x-1].count++;
-		
-cities[y-1].cities[cities[y-1].count] = x-1;
-		cities[y-1].id = y-1;
-		cities[y-1].count++;
+			for(j=0; j<cityCount; j++) {
+				cities[i].bridges[j].inCicle = false;
+			}
 
-		i--;
-	}
-
-	i = bridgeCount;
-	while(i) {
-		// if has rank 1, do_queue
-		if(cities[i].count == 1) {
-			item.city = cities[i];
-			do_queue(item, &rank1_queue);
 		}
-		i--;
-	}
-	
-	int idTo;
-	while(!is_queue_empty(&rank1_queue)) {
-		undo_queue(&rank1_queue, &item);
-		cityTo = item.city.cities[0];
-		remove_bridge(&cities[idTo], item.city.id);
-		if(cities[idTo].count == 1) {
-			item.city = cities[idTo];
-			do_queue(item, &rank1_queue);
+
+		// read
+		i = bridgeCount;
+		while(i) {
+			scanf("%d %d", &x, &y);
+
+			cities[x-1].bridges[cities[x-1].count].to = y-1;
+			cities[x-1].count++;
+			
+			cities[y-1].bridges[cities[y-1].count].to = x-1;
+			cities[y-1].count++;
+
+			i--;
 		}
-		bridgeCount--;
-}
+
+		int cicleBridges = 0, pos;
+		for(i=0; i<cityCount; i++) {
+			pos = i+1;
+			cicleBridges += cicle_bridges(&(cities[i]), pos);
+		}
+		printf("%d\n", bridgeCount - BRIDGE_CICLE);
+	}
+
 	return 0;
 }
 
-void remove_bridge(City *city, int idTo) {
-	int doShift = 0;
+int cicle_bridges(City *initial, int pos) {
+	if(initial->count <= 1) return 0;
+
 	int i;
-	
-	for(i=0; i<city->count; i++) {
-		if(doShift)
-			city->cities[i-1] = city->cities[i];
-		doShift = doShift || (city->cities[i] == idTo);
+	int count = 0, partial;
+	City next;
+
+	initial->pos = pos;
+
+
+	for(i=0; i<initial->count; i++) {
+		next = cities[initial->bridges[i].to];
+		partial = _cicle_bridges(initial, initial, next, pos);
+
+		if(partial != -1) {
+			count += partial;
+
+			if(!cities[initial->id].bridges[i].inCicle) {
+				count++;
+				mark_bridge(initial->id, next.id);
+			}
+		}
 	}
-	
-	city->count--;
+
+	return count;
 }
 
-void init_queue(Queue *queue) {
-  queue->first = (CellPointer) malloc(sizeof(Cell));
-  queue->last = queue->first;
-  queue->first->next = NULL;
-} 
+int _cicle_bridges(City *initial, City *parent, City city, int pos) {
+	int i;
+	int count = 0;
+	int partial;
+	Bridge bridge;
+	City next;
 
-int is_queue_empty(Queue queue) { 
-  return (queue.first == queue.last);
-} 
+	if(city.id == initial->id) return 0; // fechou um ciclo
+	if(cities[city.id].pos == pos) return -1; // ja passou por aqui
+	if(city.count == 1) return -1; // impossivel continuar
 
-void do_queue(CellItem item, Queue *queue) {
-  queue->last->next = (CellPointer) malloc(sizeof(Cell));
-  queue->last = queue->last->next;
-  queue->last->item = item;
-  queue->last->next = NULL;
-} 
+	cities[city.id].pos = pos;
 
-void undo_queue(Queue *queue, CellItem *item) {
-  CellPointer pointer;
-  if (is_queue_empty(*queue)) { printf("Erro fila esta vazia\n"); return; }
-  pointer = queue->first;
-  queue->first = queue->first->next;
-  *item = queue->first->item;
-  free(pointer);
+	for(i=0; i<city.count; i++) {
+		bridge = city.bridges[i];
+		next = cities[bridge.to];
+
+		//printf("\nnext id %d parent id %d\n", next.id, parent->id);
+		if(next.id != parent->id) {
+			partial = _cicle_bridges(initial, &city, next, pos);
+
+			if(partial != -1) {
+				count += partial;
+
+				if(!cities[city.id].bridges[i].inCicle) {
+					count++;
+					mark_bridge(city.id, next.id);
+				}
+			}
+		}
+	}
+
+	cities[city.id].pos = 0;
+
+	return count ? count : -1; // nenhum filho chegou ao inicial
+}
+
+void mark_bridge(int from, int to) {
+	int i;
+	for(i=0; cities[from].count; i++) {
+		if(cities[from].bridges[i].to == to) {
+			cities[from].bridges[i].inCicle = true;
+			break;
+		}
+	}
+	for(i=0; cities[to].count; i++) {
+		if(cities[to].bridges[i].to == from) {
+			cities[to].bridges[i].inCicle = true;
+			break;
+		}
+	}
+
+	BRIDGE_CICLE++;
+}
+
+void unmark_bridge(int from, int to) {
+	int i;
+	for(i=0; cities[from].count; i++) {
+		if(cities[from].bridges[i].to == to) {
+			cities[from].bridges[i].inCicle = false;
+			break;
+		}
+	}
+	for(i=0; cities[to].count; i++) {
+		if(cities[to].bridges[i].to == from) {
+			cities[to].bridges[i].inCicle = false;
+			break;
+		}
+	}
 }

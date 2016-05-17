@@ -1,0 +1,8 @@
+{
+  "name": "cpp",
+  "version": "1.0.0",
+  "description": "My college works",
+  "scripts": {
+    "tp2": "gcc -g -O0 *.c -o tp2.exe"
+  }
+}

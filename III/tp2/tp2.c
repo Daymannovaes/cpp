@@ -14,6 +14,9 @@ Point *create_point(int x, int y);
 Map *create_map(int rows, int columns, FILE *input);
 // ---------------------------------------- //
 
+// docs
+// https://docs.google.com/document/d/1buH0mK6U_ZebSpookLaqd_0erx5hQUuMcuUff1sGtCo/edit#heading=h.rz194zb44u8t
+
 int main(int argc, char const *argv[]) {
 	FILE *input;
 	int x, y;

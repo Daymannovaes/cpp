@@ -18,8 +18,8 @@ void print_point(Point *point) {
 	printf(" (%d, %d) ", point->x, point->y);
 }
 void print_point_with(Point *point, char *str) {
-	printf("%s\n(%d, %d) ", str, point->x, point->y);
+	printf("%s (%d, %d) ", str, point->x, point->y);
 }
 void print_point_with2(Point *point, char *str1, char *str2) {
-	printf("%s\n(%d, %d)\n%s", str1, point->x, point->y, str2);
+	printf("%s (%d, %d) %s", str1, point->x, point->y, str2);
 }

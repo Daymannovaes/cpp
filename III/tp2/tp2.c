@@ -46,6 +46,9 @@ int main(int argc, char const *argv[]) {
 
 	Map *map;
 	map = create_map(rows, columns, input);
+	print_point_with(origin, "\norigin point");
+	print_point_with(destiny, "\ndestiny point");
+	print_point_with(step, "\nsteps");
 	print_map(map);
 
 	fclose(input);
